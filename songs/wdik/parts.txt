@@ -1,0 +1,7 @@
+Voice
+Soprano
+Mezzo
+Alto
+Tenor
+Bari
+Bass
