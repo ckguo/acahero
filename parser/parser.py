@@ -12,6 +12,7 @@ def parse_XML(fname, tempo):
     if not os.path.exists('../songs/'+song):
         os.makedirs('../songs/'+song)
 
+    parts = []
 
     # figure out how to get tempo ideally
 
@@ -20,6 +21,7 @@ def parse_XML(fname, tempo):
         pitches = []
         durations = []
         times = []
+        parts.append(part.partName + '\n')
 
         for m in part.getElementsByClass(["Measure"]):
             num_measures += 1
@@ -39,6 +41,9 @@ def parse_XML(fname, tempo):
     b = open('../songs/'+song+'/barlines.txt', 'w')
     b.writelines([str(x*240./tempo) + '\n' for x in range(num_measures)])
     b.close()
+    p = open('../songs/'+song+'/parts.txt', 'w')
+    p.writelines(parts)
+    p.close()
 
     
 parse_XML('wdik.xml', 115)
