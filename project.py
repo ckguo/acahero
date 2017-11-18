@@ -23,6 +23,7 @@ from kivy.clock import Clock as kivyClock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from common.kivyparticle import ParticleSystem
+from kivy.config import Config
 
 from random import randint, random
 import numpy as np
@@ -32,6 +33,9 @@ from functools import partial
 NOW_PIXEL = 60 # Pixel of now bar
 SCREEN_TIME = 3.0 # Amount of time 
 GAME_HEIGHT = Window.height - 100 # Top of game screen
+
+Config.set('graphics', 'fullscreen', 'auto')
+Config.write()
 
 class MainWidget(BaseWidget) :
     def __init__(self):
@@ -228,7 +232,7 @@ class SongData(object):
                 continue
 
             time, duration, lane = gem.split("\t")
-            self.GemDict.setdefault(int(lane)-1, []).append((float(time), float(duration)))
+            self.GemDict.setdefault(int(lane), []).append((float(time), float(duration)))
 
         for barline in barlines:
             time = barline.strip()
@@ -240,15 +244,28 @@ class SongData(object):
 class GemDisplay(InstructionGroup):
     def __init__(self, pos, color, length):
         super(GemDisplay, self).__init__()  
-        self.color = color
-        self.pos = (pos[0], pos[1]-5)
+        self.rectcolor = color
+        self.circolor = Color(color.r, color.g, color.b, 1)
+        self.pos = pos
         self.length = length
         self.draw_gem()
 
     def draw_gem(self):
-        self.add(self.color)
-        self.gem = Rectangle( pos=self.pos, size=(self.length,10) )
+        # Draw rectangle
+        self.add(self.rectcolor)
+        self.gem = Rectangle( pos=(self.pos[0], self.pos[1]-10), size=(self.length, 20) )
         self.add(self.gem)
+
+        self.add(self.circolor)
+        self.circle = CEllipse( cpos=(self.pos), size=(20,20), segments = 10 )
+        self.add(self.circle)
+
+        # # Draw music note
+        # self.add(Color(0,0,0))
+        # self.circle = CEllipse( cpos=(self.pos), size=(36,36), segments = 10 )
+        # self.add(self.circle)
+        # self.line = Line(points=[self.pos[0]+14, self.pos[1], self.pos[0]+14, self.pos[1]+45], width=4)
+        # self.add(self.line)
 
     # change to display this gem being hit
     def on_hit(self):
@@ -266,6 +283,7 @@ class GemDisplay(InstructionGroup):
         newx = self.pos[0] - dx
         self.pos = (newx, self.pos[1])
 
+        self.remove(self.circle)
         self.remove(self.gem)
         self.draw_gem()
 
@@ -375,7 +393,7 @@ class BeatMatchDisplay(InstructionGroup):
         self.add_nowbar()
 
         # Draw gem lanes
-        self.lines = [Line(points=[(799, np.interp(y, [-1,self.num_lanes], [0,GAME_HEIGHT])), (0, np.interp(y, [-1,self.num_lanes], [0,GAME_HEIGHT]))], width=0.4) for y in range(self.num_lanes)]      
+        self.lines = [Line(points=[(Window.width, np.interp(y, [-1,self.num_lanes], [0,GAME_HEIGHT])), (0, np.interp(y, [-1,self.num_lanes], [0,GAME_HEIGHT]))], width=0.4) for y in range(self.num_lanes)]      
         self.add_lines()
 
         # # Draw buttons
@@ -484,7 +502,7 @@ class BeatMatchDisplay(InstructionGroup):
                     self.gem_idx[lane] += 1
 
         # Update gems
-        for lane in range(5):
+        for lane in range(self.num_lanes):
             for gem in self.gems[lane]:
                 if not self.paused:
                     alive = gem.translate(dy)
