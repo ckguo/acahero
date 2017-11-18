@@ -1,5 +1,9 @@
 #pset6.py
 
+# Silent when supposed to be singing
+# Singing when supposed to be silent
+# Singing wrong pitch
+# Singing right pitch
 
 import sys
 sys.path.append('..')
@@ -18,6 +22,7 @@ from kivy.graphics import PushMatrix, PopMatrix, Translate, Scale, Rotate
 from kivy.clock import Clock as kivyClock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
+from common.kivyparticle import ParticleSystem
 
 from random import randint, random
 import numpy as np
@@ -25,7 +30,7 @@ import bisect
 from functools import partial
 
 NOW_PIXEL = 60 # Pixel of now bar
-SCREEN_TIME = 1.5 # Amount of time 
+SCREEN_TIME = 3.0 # Amount of time 
 GAME_HEIGHT = Window.height - 100 # Top of game screen
 
 class MainWidget(BaseWidget) :
@@ -46,15 +51,15 @@ class MainWidget(BaseWidget) :
         self.name = name_label()
         self.add_widget(self.name)
 
-        for i in range(8):
-            self.img = Image(source='pink_eighth.png', 
-                            pos=(randint(0,Window.width),randint(0,Window.height)),  
-                            keep_ratio=True,
-                            size_hint_y=None,
-                            size_hint_x=None,
-                            height=50,
-                            color=(random(),random(),random(),random()))
-            self.add_widget(self.img)
+        # for i in range(8):
+        #     self.img = Image(source='pink_eighth.png', 
+        #                     pos=(randint(0,Window.width),randint(0,Window.height)),  
+        #                     keep_ratio=True,
+        #                     size_hint_y=None,
+        #                     size_hint_x=None,
+        #                     height=50,
+        #                     color=(random(),random(),random(),random()))
+        #     self.add_widget(self.img)
 
         self.clock = Clock()
         self.clock.stop()
@@ -62,19 +67,34 @@ class MainWidget(BaseWidget) :
         self.globaltime = self.clock.get_time()
         self.gameon = False
 
-        self.audio = AudioController("MoreThanAFeeling_bg.wav", "MoreThanAFeeling_solo.wav", "missed_sfx.wav")
+        self.audio = None
+        self.audio = AudioController("songs/wdik/wdik-All.wav", "songs/wdik/wdik-Tenor.wav")
 
-        self.lanes, self.gem_data, self.barlineData = SongData().read_data('gems.txt', 'barlines.txt')
+        self.lanes, self.gem_data, self.barlineData = SongData().read_data('songs/wdik/Tenor.txt', 'songs/wdik/barlines.txt')
         self.display = BeatMatchDisplay(self.lanes, self.gem_data, self.barlineData)
         self.canvas.add(self.display)
 
-        self.player = Player(self.gem_data, self.display, self.audio)
+        self.player = Player(self.lanes, self.gem_data, self.display, self.audio)
 
         # Display screen when starting game. 
         self.name.text = "[color=000000][b]ACAHERO[/b]"
         self.scorelabel.text = "[color=000000]Score: 0"
         self.timelabel.text = "Time: %.2f" % self.gametime
         self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]\n[i]12345:[/i] [size=30]gems[/size]"
+
+        # Display user's cursor
+        self.canvas.add(Color(0,1,0))
+        self.user = Triangle(points=[NOW_PIXEL-5, 0-10, NOW_PIXEL-5, 0+10, NOW_PIXEL+15, 0])
+        self.canvas.add(self.user)
+        
+        # Display particle system? 
+        # load up the particle system, set initial emitter point and start it.
+        self.ps = ParticleSystem('particle/particle.pex')
+        self.ps.emitter_x = NOW_PIXEL
+        self.ps.emitter_y = 0.0
+        self.ps.start()
+        self.add_widget(self.ps)
+
     def on_key_down(self, keycode, modifiers):
         # play / pause toggle
         if keycode[1] == 'p':
@@ -85,12 +105,21 @@ class MainWidget(BaseWidget) :
         # if button_idx != None:
         #     self.player.on_button_down(button_idx, self.gametime)
 
-    def on_key_up(self, keycode):
-        pass
-        # # button up
-        # button_idx = lookup(keycode[1], '12345', (0,1,2,3,4))
-        # if button_idx != None:
-        #     self.player.on_button_up(button_idx)
+    def on_touch_move(self, touch):
+        x, y = touch.pos
+
+        # self.ps.emitter_x = x
+        self.ps.emitter_y = y
+
+        # Update the user's cursor
+        if y < GAME_HEIGHT:
+            self.canvas.remove(self.user)
+            self.canvas.add(Color(0,1,0))
+            self.user = Triangle(points=[NOW_PIXEL-5, y-10, NOW_PIXEL-5, y+10, NOW_PIXEL+15, y])
+            self.canvas.add(self.user)
+
+        # Check if position is near a gem
+        self.player.on_touch_move(y, self.gametime)
 
     def toggle(self):
         self.gameon = not self.gameon
@@ -123,23 +152,24 @@ class MainWidget(BaseWidget) :
             self.display.on_update(self.gametime, dt)
             self.player.on_update(self.gametime)
 
-            # End game after 72.8 seconds 
-            if self.gametime > 72.8:
-                self.endgame()
+            # # End game after 72.8 seconds 
+            # if self.gametime > 72.8:
+            #     self.endgame()
 
             # 3,2,1 Start game countdown
-            if -.5 < self.gametime < 0:
+            change = SCREEN_TIME/3
+            if -change < self.gametime < 0:
                 self.streaklabel.text = '1'
-            elif -1 < self.gametime < -0.5:
+            elif -change*2 < self.gametime < -change:
                 self.streaklabel.text = '2'
-            elif -1.5 < self.gametime < -1:
+            elif -change*3 < self.gametime < -change*2:
                 self.streaklabel.text = '3'
 
 # creates the Audio control
 # creates a song and loads it with solo and bg audio tracks
 # creates snippets for audio sound fx
 class AudioController(object):
-    def __init__(self, bg_path, solo_path, sfx_path):
+    def __init__(self, bg_path, solo_path):
         super(AudioController, self).__init__()
         self.audio = Audio(2)
         self.mixer = Mixer()
@@ -149,12 +179,14 @@ class AudioController(object):
         self.wave_gen_solo = WaveGenerator(WaveFile(solo_path))
         self.wave_gen_bg.pause()
         self.wave_gen_solo.pause()
-        self.missed_sfx = WaveFile(sfx_path)
 
         self.solo_mute = False
         self.mute_time = None
 
     def start_music(self):
+        self.wave_gen_solo.set_gain(1.)
+        self.wave_gen_bg.set_gain(0.5)
+
         self.mixer.add(self.wave_gen_solo)
         self.mixer.add(self.wave_gen_bg)
 
@@ -168,21 +200,9 @@ class AudioController(object):
         self.solo_mute = True
         self.mute_time = gametime # Track time to unmute after 0.2 seconds 
 
-    # play a sound-fx (miss sound)
-    def play_sfx(self):
-        self.mixer.add(WaveGenerator(self.missed_sfx))
-
     # needed to update audio
     def on_update(self, gametime):
         self.audio.on_update()
-
-        if self.solo_mute: 
-            self.wave_gen_solo.set_gain(0.)
-  
-            # Unmute after 0.2 second (length of sfx)
-            if self.mute_time + 0.2 < gametime:
-                self.solo_mute = False
-                self.wave_gen_solo.set_gain(1.0)
 
         if gametime >= 0.:
             self.start_music()
@@ -211,7 +231,7 @@ class SongData(object):
             self.GemDict.setdefault(int(lane)-1, []).append((float(time), float(duration)))
 
         for barline in barlines:
-            time, _ = barline.split("\t")
+            time = barline.strip()
             self.BarlineList.append(float(time))
 
         return self.Lanes, self.GemDict, self.BarlineList
@@ -329,22 +349,18 @@ class Barline(InstructionGroup):
 class BeatMatchDisplay(InstructionGroup):
     def __init__(self, lanes, gem_data, barline_data):
         super(BeatMatchDisplay, self).__init__()
-        self.colors = [Color(1,0,0,.5), \
-                    Color(1,0,0,1), \
-                    Color(1,.5,0,.5), \
-                    Color(1,.5,0,1), \
-                    Color(1,1,0,.5), \
-                    Color(1,1,0,1), \
-                    Color(0,1,0,.5), \
-                    Color(0,1,0,1)]
-
         self.lanes = lanes
         self.num_lanes = len(lanes)
 
+        # Colors corresponding to each lane
+        self.colors = [Color(1,.5,0,.4)]*self.num_lanes
+
+        # To keep track of next gems
         self.gem_data = gem_data
         self.gem_idx = [0]*self.num_lanes
         self.gems = [[] for i in range(self.num_lanes)]
 
+        # To keep track of next barline
         self.barline_data = barline_data
         self.barline_idx = 0
         self.barlines = []
@@ -355,18 +371,16 @@ class BeatMatchDisplay(InstructionGroup):
         self.add(self.header)
 
         # Draw nowbar
-        self.add(Color(.8,.8,.8))
         self.nowbar = Rectangle(pos=(NOW_PIXEL, 0), size=(10, GAME_HEIGHT))
-        self.add(self.nowbar)
+        self.add_nowbar()
 
         # Draw gem lanes
         self.lines = [Line(points=[(799, np.interp(y, [-1,self.num_lanes], [0,GAME_HEIGHT])), (0, np.interp(y, [-1,self.num_lanes], [0,GAME_HEIGHT]))], width=0.4) for y in range(self.num_lanes)]      
         self.add_lines()
 
-        # Draw buttons
-        # self.button_colors = [Color(0.19,1.  ,0.39), Color(1.  ,0.00,0.35), Color(1., 0.98823529, 0.19215686), Color(1.  ,0.28,0.  ), Color(0.  ,1.  ,0.9)]
-        self.buttons = [ButtonDisplay((NOW_PIXEL+5, np.interp(y, [-1,self.num_lanes], [0,GAME_HEIGHT])), self.colors[y]) for y in range(self.num_lanes)]
-        self.add_buttons()
+        # # Draw buttons
+        # self.buttons = [ButtonDisplay((NOW_PIXEL+5, np.interp(y, [-1,self.num_lanes], [0,GAME_HEIGHT])), self.colors[y]) for y in range(self.num_lanes)]
+        # self.add_buttons()
 
         self.pops = AnimGroup() # Animations after gems are hit.
         self.add(self.pops)
@@ -378,6 +392,10 @@ class BeatMatchDisplay(InstructionGroup):
 
         if self.paused:
             self.add(Color(.83,.83,.83))
+
+    def add_nowbar(self):
+        self.add(Color(.3,.3,.3,.2))
+        self.add(self.nowbar)
 
     def add_lines(self):
         self.add(Color(.4,.4,.4))
@@ -419,19 +437,18 @@ class BeatMatchDisplay(InstructionGroup):
         gem.on_pass()
 
     # called by Player. Causes the right thing to happen
-    def on_button_down(self, lane, hit):
-        button = self.buttons[lane]
-        button.on_down(hit)
+    def on_button_down(self, lane):
+        pass
 
-        if hit: 
-            try:
-            # Assume that the user was aiming for the gem that is located the closest to the nowbar.
-                dists = [abs(gem.get_x() - self.nowbar.pos[1]) for i, gem in enumerate(self.gems[lane])]
-                gem_idx = np.argmin(dists)
-                self.gem_hit(gem_idx, lane)
-            except:
-                pass
-            #     print(self.gems[lane], "\n", lane, "\n")
+        # if hit: 
+        #     try:
+        #     # Assume that the user was aiming for the gem that is located the closest to the nowbar.
+        #         dists = [abs(gem.get_x() - self.nowbar.pos[1]) for i, gem in enumerate(self.gems[lane])]
+        #         gem_idx = np.argmin(dists)
+        #         self.gem_hit(gem_idx, lane)
+        #     except:
+        #         pass
+        #     #     print(self.gems[lane], "\n", lane, "\n")
 
     # called by Player. Causes the right thing to happen
     def on_button_up(self, lane):
@@ -440,7 +457,7 @@ class BeatMatchDisplay(InstructionGroup):
 
     # call every frame to make gems and barlines flow down the screen
     def on_update(self, gametime, dt) :
-        dy = ((Window.height - (NOW_PIXEL+5))/SCREEN_TIME) * dt 
+        dy = ((Window.width - (NOW_PIXEL+5))/SCREEN_TIME) * dt 
 
         # Schedule to create new barlines
         if self.barline_idx < len(self.barline_data):
@@ -488,40 +505,47 @@ class BeatMatchDisplay(InstructionGroup):
 # Handles game logic and keeps score.
 # Controls the display and the audio
 class Player(object):
-    def __init__(self, gem_data, display, audio_ctrl):
+    def __init__(self, lanes, gem_data, display, audio_ctrl):
         super(Player, self).__init__()
+        self.lanes = lanes
+        self.num_lanes = len(lanes)
         self.display = display
-        self.audio = audio_ctrl
+        # self.audio = audio_ctrl
+
         self.slop_window = 0.1
         self.gem_data = gem_data
-        self.gem_idx = [0]*5
+        self.gem_idx = [0]*self.num_lanes
         self.gem_status = [[False]*len(gem_data[lane]) for lane in gem_data]
         self.score = 0
         self.streak = 0
         self.longest_streak = self.streak
 
-    # called by MainWidget
-    def on_button_down(self, lane, time):
-        # Detect if gem was hit
-        hit = False
-        gem_idx = self.gem_idx[lane]
+        self.gem_threshold = 0.25
 
-        if gem_idx < len(self.gem_data[lane]):
-            if self.gem_data[lane][gem_idx]-self.slop_window <= time <= self.gem_data[lane][gem_idx]+self.slop_window:
-                hit = True
-                self.gem_status[lane][gem_idx] = True
-                self.streak += 1
-                self.score += 10*self.streak
+    # called by MainWidget
+    def on_touch_move(self, y, time):
+        # Converts y position to lane integer (zero-indexed)
+        lane = np.interp(y,[0,GAME_HEIGHT], [-1,self.num_lanes])
+        difference = abs(lane - round(lane))
+        lane = int(round(lane)) if difference < self.gem_threshold else False
         
-        # If button was pressed, but gem was not hit, break the streak.
-        if not hit:
-            self.streak = 0
+        # if lane:
+        #     # Check if there is a gem in that lane at that time / Detect if gem was hit
+        #     hit = False
+        #     gem_idx = self.gem_idx[lane]
 
-        self.display.on_button_down(lane, hit)
+        #     if gem_idx < len(self.gem_data[lane]):
+        #         if self.gem_data[lane][gem_idx]-self.slop_window <= time <= self.gem_data[lane][gem_idx]+self.slop_window:
+        #             hit = True
+        #             self.gem_status[lane][gem_idx] = True
+        #             # self.streak += 1
+        #             # self.score += 10*self.streak
+            
+        #     # If button was pressed, but gem was not hit, break the streak.
+        #     if not hit:
+        #         self.streak = 0
 
-    # called by MainWidget
-    def on_button_up(self, lane):
-        self.display.on_button_up(lane)
+        self.display.on_button_down(lane)
 
     def get_score(self):
         return self.score 
