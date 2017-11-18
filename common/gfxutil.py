@@ -11,7 +11,7 @@
 
 from kivy.clock import Clock as kivyClock
 from kivy.graphics.instructions import InstructionGroup
-from kivy.graphics import Rectangle, Ellipse, Color, Fbo, ClearBuffers, ClearColor, Line
+from kivy.graphics import Rectangle, Ellipse, Color, Fbo, ClearBuffers, ClearColor, Line, Triangle
 from kivy.graphics import PushMatrix, PopMatrix, Scale, Callback
 from kivy.graphics.texture import Texture
 from kivy.uix.label import Label
@@ -74,7 +74,6 @@ class CEllipse(Ellipse):
 
     cpos = property(get_cpos, set_cpos)
     csize = property(get_csize, set_csize)
-
 
 
 # KeyFrame Animation class
