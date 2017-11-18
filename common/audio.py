@@ -106,7 +106,7 @@ class Audio(object):
         # default values
         out_dev = None
         in_dev = None
-        buf_size = 512
+        buf_size = 1024
         sample_rate = None
 
         # First, try loading config params from configuration file.
