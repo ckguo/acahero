@@ -60,10 +60,8 @@ class MainWidget(BaseWidget) :
         self.clock = Clock()
         self.clock.stop()
         self.gametime = -SCREEN_TIME
-        self.globaltime = self.clock.get_time()
         self.gameon = False
 
-        self.audio = None
         self.audio = AudioController("songs/wdik/wdik-All.wav", "songs/wdik/wdik-Tenor.wav", receive_audio_func=self.receive_audio)
 
         # Display user's cursor
@@ -72,11 +70,11 @@ class MainWidget(BaseWidget) :
         self.user = Triangle(points=[NOW_PIXEL-10, 200-10, NOW_PIXEL-10, 200+10, NOW_PIXEL+20, 200])
         self.canvas.add(self.user)
 
-        self.lanes, self.gem_data, self.barlineData, self.beatData = SongData().read_data('songs/wdik/Tenor.txt', 'songs/wdik/barlines.txt', 'songs/wdik/beats.txt')
-        self.display = BeatMatchDisplay(self.lanes, self.gem_data, self.barlineData, self.beatData)
+        self.lanes, gem_data, barlineData, beatData = SongData().read_data('songs/wdik/Tenor.txt', 'songs/wdik/barlines.txt', 'songs/wdik/beats.txt')
+        self.display = BeatMatchDisplay(self.lanes, gem_data, barlineData, beatData)
         self.canvas.add(self.display)
 
-        self.player = Player(self.lanes, self.gem_data, self.display, self.audio, PitchDetector())
+        self.player = Player(self.lanes, gem_data, self.display, self.audio, PitchDetector())
 
         # Display screen when starting game. 
         self.name.text = "[color=000000][b]ACAHERO[/b]"
@@ -142,10 +140,9 @@ class MainWidget(BaseWidget) :
     def on_update(self) :
         # Only update when gameplay is on
         if self.gameon:
-            curr_time = self.clock.get_time()
-            dt = curr_time - self.globaltime
-            self.gametime += dt
-            self.globaltime = curr_time
+            curr_gametime = self.clock.get_time() - SCREEN_TIME
+            dt = curr_gametime - self.gametime
+            self.gametime = curr_gametime
 
             self.timelabel.text = "Time: %.2f" % self.gametime
             self.scorelabel.text = 'Score: {}'.format(self.player.get_score())
@@ -217,9 +214,6 @@ class AudioController(object):
         self.wave_gen_bg.pause()
         self.wave_gen_solo.pause()
 
-        self.solo_mute = False
-        self.mute_time = None
-
     def start_music(self):
         self.wave_gen_solo.set_gain(1.)
         self.wave_gen_bg.set_gain(0.5)
@@ -231,11 +225,6 @@ class AudioController(object):
     def toggle(self):
         self.wave_gen_bg.play_toggle()
         self.wave_gen_solo.play_toggle()
-
-    # mute the solo track
-    def mute_solo(self, gametime):
-        self.solo_mute = True
-        self.mute_time = gametime # Track time to unmute after 0.2 seconds 
 
     # needed to update audio
     def on_update(self, gametime):
@@ -307,9 +296,7 @@ class Player(object):
         self.pitch = pitch_detector
         self.correct_pitch = 0
         self.cur_pitch = 0
-
         self.cor_lane = 0
-
 
     def get_score(self):
         return self.score/self.max_score
@@ -320,9 +307,8 @@ class Player(object):
     def get_longest_streak(self):
         return self.longest_streak
 
-    # needed to check if for pass gems (ie, went past the slop window)
     def on_update(self, gametime):
-        # Detect if gem was missed / passed
+        # find the current gem (if there is one) and set self.correct_pitch
         for lane in range(self.num_lanes):
             gem_idx = self.gem_idx[lane]
 
@@ -336,17 +322,6 @@ class Player(object):
                     self.correct_pitch = 0
                     self.gem_idx[lane] += 1
                     self.max_score += 2
-
-                    # If the gem was not hit, then play missed sfx, mute solo, change colors, and reset the streak
-                    # if not self.gem_status[lane][gem_idx]: 
-                    #     self.audio.play_sfx()
-                    #     self.audio.mute_solo(gametime)
-                    #     self.display.gem_pass(lane)
-                    #     self.streak = 0
-
-        # # Update longest streak
-        # if self.longest_streak < self.streak:
-        #     self.longest_streak = self.streak
 
 
     def receive_audio(self, mono):

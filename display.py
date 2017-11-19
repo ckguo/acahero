@@ -63,20 +63,7 @@ class GemDisplay(InstructionGroup):
         self.color = Color(.8,.8,.8)
         self.remove(self.gem)
         self.draw_gem()
-
-    def translate(self, dx):
-        newx = self.pos[0] - dx
-        self.pos = (newx, self.pos[1])
-
-        self.remove(self.circle)
-        self.remove(self.gem)
-        self.remove(self.text)
-        self.draw_gem()
-
-        return newx+self.length > 0
-
-    def get_x(self):
-        return self.pos[0]
+        
 
 class Pop(InstructionGroup) :
     def __init__(self, pos, color):
