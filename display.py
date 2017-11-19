@@ -130,6 +130,7 @@ class BeatMatchDisplay(InstructionGroup):
 
         self.add_header()
         self.add_nowbar()
+        self.add_healthbar()
         self.add_lines() # Add gem lines
 
         self.pops = AnimGroup() # Animations after gems are hit.
@@ -166,6 +167,9 @@ class BeatMatchDisplay(InstructionGroup):
         self.nowbar = Rectangle(pos=(NOW_PIXEL, 0), size=(10, GAME_HEIGHT))
         self.add(Color(.3,.3,.3,.2))
         self.add(self.nowbar)
+
+    def add_healthbar(self):
+        pass
 
     def add_lines(self):
         self.lines = [Line(points=[(Window.width, lane_to_y_pos(y, self.num_lanes)), (0, lane_to_y_pos(y, self.num_lanes))], width=0.4) for y in range(self.num_lanes)]      
@@ -204,7 +208,7 @@ class BeatMatchDisplay(InstructionGroup):
         gem.on_pass()
 
     # call every frame to make gems and barlines flow down the screen
-    def on_update(self, gametime, dt) :
+    def on_update(self, gametime, dt, score) :
         # self.trans.x = NOW_PIXEL - gametime*RATE
         self.trans.x = -gametime*RATE + NOW_PIXEL
 

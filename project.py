@@ -83,7 +83,7 @@ class MainWidget(BaseWidget) :
         self.scorelabel.text = "[color=000000]Score: 0"
         self.timelabel.text = "Time: %.2f" % self.gametime
         self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]\n[i]12345:[/i] [size=30]gems[/size]"
-        self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f' % (self.player.correct_pitch, self.player.cur_pitch)
+        self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f \n correct lane: %f' % (self.player.correct_pitch, self.player.cur_pitch, self.player.cor_lane)
 
         # # Display particle system? 
         # # load up the particle system, set initial emitter point and start it.
@@ -155,7 +155,7 @@ class MainWidget(BaseWidget) :
             self.streaklabel.text = '[color=CFB53B]{}X Streak'.format(self.player.get_streak()) if self.player.get_streak() > 1 else ''
 
             self.audio.on_update(self.gametime)
-            self.display.on_update(self.gametime, dt)
+            self.display.on_update(self.gametime, dt, self.player.get_score())
             self.player.on_update(self.gametime)
 
             # # End game after 72.8 seconds 
@@ -297,7 +297,8 @@ class Player(object):
         self.gem_data = gem_data
         self.gem_idx = [0]*self.num_lanes
         self.gem_status = [[False]*len(gem_data[lane]) for lane in gem_data]
-        self.score = 0
+        self.score = 10
+        self.max_score = 10
         self.streak = 0
         self.longest_streak = self.streak
 
@@ -307,8 +308,11 @@ class Player(object):
         self.correct_pitch = 0
         self.cur_pitch = 0
 
+        self.cor_lane = 0
+
+
     def get_score(self):
-        return self.score 
+        return self.score/self.max_score
 
     def get_streak(self):
         return self.streak
@@ -331,6 +335,7 @@ class Player(object):
                 if gametime > gem_time + duration:
                     self.correct_pitch = 0
                     self.gem_idx[lane] += 1
+                    self.max_score += 2
 
                     # If the gem was not hit, then play missed sfx, mute solo, change colors, and reset the streak
                     # if not self.gem_status[lane][gem_idx]: 
@@ -345,6 +350,11 @@ class Player(object):
 
 
     def receive_audio(self, mono):
+        if self.correct_pitch in self.lanes:
+            self.cor_lane = self.lanes.index(self.correct_pitch)
+        else:
+            self.cor_lane = -1
+
         if self.cur_pitch != 0:
             conf = 0.5
         else:
@@ -355,10 +365,19 @@ class Player(object):
             if np.round(self.cur_pitch) == 0:
                 self.score += 0.1*len(mono)/fs
             else:
-                self.score += 10*len(mono)/fs
+                self.score += 5*len(mono)/fs
+                if not self.gem_status[self.cor_lane][self.gem_idx[self.cor_lane]]:
+                    self.score += 2
+                    self.gem_status[self.cor_lane][self.gem_idx[self.cor_lane]] = True
         elif self.correct_pitch == 0 or self.cur_pitch == 0:
             self.score -= 0.1*len(mono)/fs
         else:
             self.score -= 0.5*len(mono) * max(2,(np.round(self.cur_pitch) - self.correct_pitch))/fs
+
+        self.score = max(0, self.score)
+        if self.correct_pitch != 0: 
+            self.max_score += 3*len(mono)/fs
+        else:
+            self.max_score += 0.1*len(mono)/fs
 
 run(MainWidget)
