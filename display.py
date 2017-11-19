@@ -3,8 +3,10 @@ from common.gfxutil import *
 from kivy.graphics.instructions import InstructionGroup
 from kivy.graphics import Color, Ellipse, Line, Rectangle
 from kivy.graphics import PushMatrix, PopMatrix, Translate, Scale, Rotate
+from kivy.core.image import Image as CoreImage
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
+from kivy.uix.label import Label
 from common.kivyparticle import ParticleSystem
 
 import numpy as np
@@ -16,12 +18,13 @@ GAME_HEIGHT = Window.height*.8 # Top of game screen
 
 # display for a single gem at a position with a color (if desired)
 class GemDisplay(InstructionGroup):
-    def __init__(self, pos, color, length):
+    def __init__(self, pos, color, length, lyric):
         super(GemDisplay, self).__init__()  
         self.rectcolor = color
         self.circolor = Color(color.r, color.g, color.b, 1)
         self.pos = pos
         self.length = length
+        self.lyric = lyric
         self.draw_gem()
 
     def draw_gem(self):
@@ -33,6 +36,12 @@ class GemDisplay(InstructionGroup):
         self.add(self.circolor)
         self.circle = CEllipse( cpos=(self.pos), size=(20,20), segments = 10 )
         self.add(self.circle)
+
+        print('./lyrics/' + self.lyric + '.png')
+        self.add(Color(256, 256, 256))
+        texture = CoreImage('./lyrics/' + self.lyric + '.png').texture
+        self.text = Rectangle( pos=(self.pos[0]+10, self.pos[1]+10), size=(100, 50), texture=texture )
+        self.add(self.text)
 
         # # Draw music note
         # self.add(Color(0,0,0))
@@ -59,6 +68,7 @@ class GemDisplay(InstructionGroup):
 
         self.remove(self.circle)
         self.remove(self.gem)
+        self.remove(self.text)
         self.draw_gem()
 
         return newx+self.length > 0
@@ -136,8 +146,8 @@ class BeatMatchDisplay(InstructionGroup):
             self.draw_bar(bar*RATE, 3, Color(0, 0, 0))
         
         for lane in range(self.num_lanes):
-            for gem_time, duration in self.gem_data[lane]:
-                self.draw_gem(gem_time*RATE, lane, duration)
+            for gem_time, duration, lyric in self.gem_data[lane]:
+                self.draw_gem(gem_time*RATE, lane, duration, lyric)
 
     def toggle(self):
         self.paused = not self.paused 
@@ -165,11 +175,11 @@ class BeatMatchDisplay(InstructionGroup):
         barline = Barline(x_pos, width, color)
         self.add(barline)
 
-    def draw_gem(self, x_pos, lane, duration):
+    def draw_gem(self, x_pos, lane, duration, lyric):
         y = np.interp(lane, [-1,self.num_lanes], [0,GAME_HEIGHT])
         length = RATE * duration 
 
-        gem = GemDisplay(pos=(x_pos, y), color=self.colors[lane], length=length)
+        gem = GemDisplay(pos=(x_pos, y), color=self.colors[lane], length=length, lyric=lyric)
         self.add(gem)
 
     # called by Player. Causes the right thing to happen
@@ -193,7 +203,6 @@ class BeatMatchDisplay(InstructionGroup):
 
     # call every frame to make gems and barlines flow down the screen
     def on_update(self, gametime, dt) :
-
         # self.trans.x = NOW_PIXEL - gametime*RATE
         self.trans.x = -gametime*RATE + NOW_PIXEL
 

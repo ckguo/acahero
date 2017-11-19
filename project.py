@@ -267,8 +267,11 @@ class SongData(object):
                 self.Lanes = [int(x) for x in gem.split(" ")]
                 continue
 
-            time, duration, lane, syllable = gem.split("\t")
-            self.GemDict.setdefault(int(lane), []).append((float(time), float(duration)))
+            time, duration, lane, lyric = gem.split("\t")
+            lyric = lyric.strip()
+            if lyric == "None":
+                lyric = "-"
+            self.GemDict.setdefault(int(lane), []).append((float(time), float(duration), lyric))
 
         for barline in barlines:
             time = barline.strip()
@@ -344,7 +347,7 @@ class Player(object):
             gem_idx = self.gem_idx[lane]
 
             if lane in self.gem_data and gem_idx < len(self.gem_data[lane]):
-                gem_time, duration = self.gem_data[lane][gem_idx]
+                gem_time, duration, lyric = self.gem_data[lane][gem_idx]
 
                 if gem_time < gametime < gem_time + duration:
                     self.correct_pitch = self.lanes[lane]
