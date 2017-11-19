@@ -146,8 +146,8 @@ class BeatMatchDisplay(InstructionGroup):
             self.draw_bar(bar*RATE, 3, Color(0, 0, 0))
         
         for lane in range(self.num_lanes):
-            for gem_time, duration in self.gem_data[lane]:
-                self.draw_gem(gem_time*RATE, lane, duration)
+            for gem_time, duration, lyric in self.gem_data[lane]:
+                self.draw_gem(gem_time*RATE, lane, duration, lyric)
 
     def toggle(self):
         self.paused = not self.paused 
