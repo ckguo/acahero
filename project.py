@@ -33,11 +33,6 @@ from functools import partial
 from pitch_detector import *
 from display import *
 
-NOW_PIXEL = Window.width*.07 # Pixel of now bar
-SCREEN_TIME = 10.0 # Amount of time 
-RATE = Window.width/SCREEN_TIME
-GAME_HEIGHT = Window.height*.8 # Top of game screen
-
 Config.set('graphics', 'fullscreen', 'auto')
 Config.write()
 
@@ -61,16 +56,6 @@ class MainWidget(BaseWidget) :
 
         self.pitchlabel = center_label()
         self.add_widget(self.pitchlabel)
-
-        # for i in range(8):
-        #     self.img = Image(source='pink_eighth.png', 
-        #                     pos=(randint(0,Window.width),randint(0,Window.height)),  
-        #                     keep_ratio=True,
-        #                     size_hint_y=None,
-        #                     size_hint_x=None,
-        #                     height=50,
-        #                     color=(random(),random(),random(),random()))
-        #     self.add_widget(self.img)
 
         self.clock = Clock()
         self.clock.stop()
@@ -120,14 +105,6 @@ class MainWidget(BaseWidget) :
         # if button_idx != None:
         #     self.player.on_button_down(button_idx, self.gametime)
 
-    def on_touch_move(self, touch):
-        x, y = touch.pos
-
-
-
-        # Check if position is near a gem
-        self.player.on_touch_move(y, self.gametime)
-
     def toggle(self):
         self.gameon = not self.gameon
         self.audio.toggle()
@@ -135,11 +112,32 @@ class MainWidget(BaseWidget) :
         self.clock.toggle()
         Window.clearcolor = (1, 1, 1, 1) if self.gameon else (.8,.8,.8,.8)
 
-
     def endgame(self):
         self.toggle()
         self.timelabel.text = "Game Ended"
         self.streaklabel.text = '[color=CFB53B]Final Score: {}\nLongest Streak: {}'.format(self.player.get_score(), self.player.get_longest_streak())
+
+    def get_cursor_y(self):
+        bottom_pitch = self.lanes[-2] - 12
+        top_pitch = self.lanes[1] + 12
+        if self.player.cur_pitch < bottom_pitch:
+            return 0
+        if self.player.cur_pitch >= top_pitch:
+            return GAME_HEIGHT
+        bottom_i = -1
+        top_i = len(self.lanes)
+        for i in range(len(self.lanes)):
+            if self.player.cur_pitch < self.lanes[i]:
+                top_i = i
+                top_pitch = self.lanes[i]
+                break
+            else:
+                bottom_i = i
+                bottom_pitch = self.lanes[i]
+        frac = (self.player.cur_pitch-bottom_pitch)/(top_pitch-bottom_pitch)
+        bottom_pos = lane_to_y_pos(bottom_i, len(self.lanes))
+        top_pos = lane_to_y_pos(top_i, len(self.lanes))
+        return bottom_pos + frac*(top_pos-bottom_pos)
 
     def on_update(self) :
         # Only update when gameplay is on
@@ -172,17 +170,16 @@ class MainWidget(BaseWidget) :
             elif -1 < self.gametime < 0:
                 self.streaklabel.text = '1'
         
-        if not np.round(self.player.cur_pitch) in self.lanes:
+        if self.player.cur_pitch == 0:
             self.cursorcol.r = 1
             self.cursorcol.g = 0
-            y = 0
         else:
             self.cursorcol.r = 0
             self.cursorcol.g = 1
-            lane = self.lanes.index(np.round(self.player.cur_pitch))
-            y = np.interp(lane, [-1, len(self.lanes)], [0, GAME_HEIGHT])
+            # lane = self.lanes.index(np.round(self.player.cur_pitch))
+            # y = lane_to_y_pos(lane, self.num_lanes)
         # self.ps.emitter_y = y
-
+        y = self.get_cursor_y()
         # Update the user's cursor
         if y < GAME_HEIGHT:
             self.user.points = [NOW_PIXEL-10, y-10, NOW_PIXEL-10, y+10, NOW_PIXEL+20, y]
@@ -309,29 +306,6 @@ class Player(object):
         self.pitch = pitch_detector
         self.correct_pitch = 0
         self.cur_pitch = 0
-
-    # called by MainWidget
-    def on_touch_move(self, y, time):
-        # Converts y position to lane integer (zero-indexed)
-        lane = np.interp(y,[0,GAME_HEIGHT], [-1,self.num_lanes])
-        difference = abs(lane - round(lane))
-        lane = int(round(lane)) if difference < self.gem_threshold else False
-        
-        # if lane:
-        #     # Check if there is a gem in that lane at that time / Detect if gem was hit
-        #     hit = False
-        #     gem_idx = self.gem_idx[lane]
-
-        #     if gem_idx < len(self.gem_data[lane]):
-        #         if self.gem_data[lane][gem_idx]-self.slop_window <= time <= self.gem_data[lane][gem_idx]+self.slop_window:
-        #             hit = True
-        #             self.gem_status[lane][gem_idx] = True
-        #             # self.streak += 1
-        #             # self.score += 10*self.streak
-            
-        #     # If button was pressed, but gem was not hit, break the streak.
-        #     if not hit:
-        #         self.streak = 0
 
     def get_score(self):
         return self.score 

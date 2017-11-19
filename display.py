@@ -16,6 +16,9 @@ SCREEN_TIME = 10.0 # Amount of time
 RATE = Window.width/SCREEN_TIME
 GAME_HEIGHT = Window.height*.8 # Top of game screen
 
+def lane_to_y_pos(lane, num_lanes):
+    return np.interp(lane, [-1,num_lanes], [0,GAME_HEIGHT])
+
 # display for a single gem at a position with a color (if desired)
 class GemDisplay(InstructionGroup):
     def __init__(self, pos, color, length, lyric):
@@ -165,7 +168,7 @@ class BeatMatchDisplay(InstructionGroup):
         self.add(self.nowbar)
 
     def add_lines(self):
-        self.lines = [Line(points=[(Window.width, np.interp(y, [-1,self.num_lanes], [0,GAME_HEIGHT])), (0, np.interp(y, [-1,self.num_lanes], [0,GAME_HEIGHT]))], width=0.4) for y in range(self.num_lanes)]      
+        self.lines = [Line(points=[(Window.width, lane_to_y_pos(y, self.num_lanes)), (0, lane_to_y_pos(y, self.num_lanes))], width=0.4) for y in range(self.num_lanes)]      
         self.add(Color(.4,.4,.4))
         for line in self.lines:
             self.add(line)
@@ -175,7 +178,7 @@ class BeatMatchDisplay(InstructionGroup):
         self.add(barline)
 
     def draw_gem(self, x_pos, lane, duration, lyric):
-        y = np.interp(lane, [-1,self.num_lanes], [0,GAME_HEIGHT])
+        y = lane_to_y_pos(lane, self.num_lanes)
         length = RATE * duration 
 
         gem = GemDisplay(pos=(x_pos, y), color=self.colors[lane], length=length, lyric=lyric)
