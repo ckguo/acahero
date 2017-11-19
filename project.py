@@ -173,10 +173,12 @@ class MainWidget(BaseWidget) :
                 self.streaklabel.text = '1'
         
         if not np.round(self.player.cur_pitch) in self.lanes:
-            self.cursorcol = Color(1,0,0)
+            self.cursorcol.r = 1
+            self.cursorcol.g = 0
             y = 0
         else:
-            self.cursorcol = Color(0,1,0)
+            self.cursorcol.r = 0
+            self.cursorcol.g = 1
             lane = self.lanes.index(np.round(self.player.cur_pitch))
             y = np.interp(lane, [-1, len(self.lanes)], [0, GAME_HEIGHT])
         # self.ps.emitter_y = y
