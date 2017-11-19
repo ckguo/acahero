@@ -34,7 +34,7 @@ from pitch_detector import *
 from display import *
 
 NOW_PIXEL = 60 # Pixel of now bar
-SCREEN_TIME = 3.0 # Amount of time 
+SCREEN_TIME = 2.0 # Amount of time 
 GAME_HEIGHT = Window.height - 100 # Top of game screen
 
 Config.set('graphics', 'fullscreen', 'auto')
@@ -253,8 +253,11 @@ class SongData(object):
                 self.Lanes = gem.split(" ")
                 continue
 
-            time, duration, lane = gem.split("\t")
-            self.GemDict.setdefault(int(lane), []).append((float(time), float(duration)))
+            time, duration, lane, lyric = gem.split("\t")
+            lyric = lyric.strip()
+            if lyric == "None":
+                lyric = "-"
+            self.GemDict.setdefault(int(lane), []).append((float(time), float(duration), lyric))
 
         for barline in barlines:
             time = barline.strip()
