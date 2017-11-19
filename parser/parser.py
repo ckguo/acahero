@@ -21,6 +21,7 @@ def parse_XML(fname, tempo):
         pitches = []
         durations = []
         times = []
+        lyrics = []
         parts.append(part.partName + '\n')
 
         for m in part.getElementsByClass(["Measure"]):
@@ -29,13 +30,14 @@ def parse_XML(fname, tempo):
                 pitches.append(note.pitch.midi)
                 times.append(60./tempo*(m.offset+note.offset))
                 durations.append(60./tempo*(note.duration.quarterLength))
+                lyrics.append(note.lyric)
         pitches = np.array(pitches).astype(int)
         buttons = np.unique(pitches)
         pitches = [int(np.where(buttons==pitch)[0]) for pitch in pitches]
         f = open('../songs/'+song + '/' +part.partName+'.txt', 'w')
         f.write(' '.join(map(str,buttons))+'\n')
         for i in range(len(pitches)):
-            f.write('\t'.join(map(str,[times[i], durations[i], pitches[i]]))+'\n')
+            f.write('\t'.join(map(str,[times[i], durations[i], pitches[i], lyrics[i]]))+'\n')
         f.close()
         part.write('midi', fp='../songs/'+song+'/'+part.partName+'.midi')
     b = open('../songs/'+song+'/barlines.txt', 'w')
