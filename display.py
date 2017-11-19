@@ -9,9 +9,10 @@ from common.kivyparticle import ParticleSystem
 
 import numpy as np
 
-NOW_PIXEL = 60 # Pixel of now bar
-SCREEN_TIME = 3.0 # Amount of time 
-GAME_HEIGHT = Window.height - 100 # Top of game screen
+NOW_PIXEL = Window.width*.07 # Pixel of now bar
+SCREEN_TIME = 10.0 # Amount of time 
+RATE = Window.width/SCREEN_TIME
+GAME_HEIGHT = Window.height*.8 # Top of game screen
 
 # display for a single gem at a position with a color (if desired)
 class GemDisplay(InstructionGroup):
@@ -93,48 +94,13 @@ class Pop(InstructionGroup) :
 
         return self.anim.is_active(self.time)
 
-# Displays one button on the nowbar
-class ButtonDisplay(InstructionGroup):
-    def __init__(self, pos, color):
-        super(ButtonDisplay, self).__init__()
-        self.color = color
-        self.pos = pos
-        self.draw_button()
-
-    def draw_button(self):
-        self.add(self.color)
-        self.button = CEllipse( cpos=self.pos, size=(15,25), segments = 10 )
-        self.add(self.button)
-
-    # displays when button is down (and if it hit a gem)
-    def on_down(self, hit):
-        self.color.a -= .5
-
-    # back to normal state
-    def on_up(self):
-        self.color.a += .5
-
 class Barline(InstructionGroup):
-    def __init__(self, x, width):
+    def __init__(self, x, width, color):
         super(Barline, self).__init__()
-        self.width = width
         self.points = [[x, 0],[x, GAME_HEIGHT]]
-        self.draw_line()
-
-    def draw_line(self):
-        self.barline = Line(points=self.points, width=self.width)
-        self.add(Color(0,0,0))
+        self.barline = Line(points=self.points, width=width)
+        self.add(color)
         self.add(self.barline)
-
-    def translate(self, dx):
-        newx = self.points[0][0] - dx
-        self.points[0][0] = newx
-        self.points[1][0] = newx
-            
-        self.remove(self.barline)
-        self.draw_line()
-
-        return newx > 0
 
 # Displays and controls all game elements: Nowbar, Buttons, BarLines, Gems.
 class BeatMatchDisplay(InstructionGroup):
@@ -146,42 +112,32 @@ class BeatMatchDisplay(InstructionGroup):
         # Colors corresponding to each lane
         self.colors = [Color(1,.5,0,.4)]*self.num_lanes
 
-        # To keep track of next gems
         self.gem_data = gem_data
-        self.gem_idx = [0]*self.num_lanes
-        self.gems = [[] for i in range(self.num_lanes)]
-
-        # To keep track of next barline
         self.barline_data = barline_data
-        self.barline_idx = 0
-        self.barlines = []
-
-        # To keep track of next bar
         self.beat_data = beat_data
-        self.beat_idx = 0
-        # self.beats = []
 
-        # Draw header 
-        self.add(Color(0,0,0))
-        self.header = Rectangle(pos=(0, GAME_HEIGHT), size=(Window.width, 10))
-        self.add(self.header)
-
-        # Draw nowbar
-        self.nowbar = Rectangle(pos=(NOW_PIXEL, 0), size=(10, GAME_HEIGHT))
+        self.add_header()
         self.add_nowbar()
-
-        # Draw gem lanes
-        self.lines = [Line(points=[(Window.width, np.interp(y, [-1,self.num_lanes], [0,GAME_HEIGHT])), (0, np.interp(y, [-1,self.num_lanes], [0,GAME_HEIGHT]))], width=0.4) for y in range(self.num_lanes)]      
-        self.add_lines()
-
-        # # Draw buttons
-        # self.buttons = [ButtonDisplay((NOW_PIXEL+5, np.interp(y, [-1,self.num_lanes], [0,GAME_HEIGHT])), self.colors[y]) for y in range(self.num_lanes)]
-        # self.add_buttons()
+        self.add_lines() # Add gem lines
 
         self.pops = AnimGroup() # Animations after gems are hit.
         self.add(self.pops)
 
         self.paused = True
+
+    def draw_objects(self):
+        self.trans = Translate()
+        self.trans.x = Window.width + NOW_PIXEL
+        self.add(self.trans)
+
+        for beat in self.beat_data:
+            self.draw_bar(beat*RATE, 1.5, Color(0, 0, 0.7, mode='hsv'))
+        for bar in self.barline_data:
+            self.draw_bar(bar*RATE, 3, Color(0, 0, 0))
+        
+        for lane in range(self.num_lanes):
+            for gem_time, duration in self.gem_data[lane]:
+                self.draw_gem(gem_time*RATE, lane, duration)
 
     def toggle(self):
         self.paused = not self.paused 
@@ -189,34 +145,32 @@ class BeatMatchDisplay(InstructionGroup):
         if self.paused:
             self.add(Color(.83,.83,.83))
 
+    def add_header(self):
+        self.add(Color(0,0,0))
+        self.header = Rectangle(pos=(0, GAME_HEIGHT), size=(Window.width, 10))
+        self.add(self.header)
+
     def add_nowbar(self):
+        self.nowbar = Rectangle(pos=(NOW_PIXEL, 0), size=(10, GAME_HEIGHT))
         self.add(Color(.3,.3,.3,.2))
         self.add(self.nowbar)
 
     def add_lines(self):
+        self.lines = [Line(points=[(Window.width, np.interp(y, [-1,self.num_lanes], [0,GAME_HEIGHT])), (0, np.interp(y, [-1,self.num_lanes], [0,GAME_HEIGHT]))], width=0.4) for y in range(self.num_lanes)]      
         self.add(Color(.4,.4,.4))
         for line in self.lines:
             self.add(line)
 
-    def add_buttons(self):
-        for button in self.buttons:
-            self.add(button)
-
-    def draw_barline(self):
-        barline = Barline(Window.width, 3)
+    def draw_bar(self, x_pos, width, color):
+        barline = Barline(x_pos, width, color)
         self.add(barline)
-        self.barlines.append(barline)
 
-    def draw_beat(self):
-        beat = Barline(Window.width, 1)
-        self.add(beat)
-        self.barlines.append(beat)
+    def draw_gem(self, x_pos, lane, duration):
+        y = np.interp(lane, [-1,self.num_lanes], [0,GAME_HEIGHT])
+        length = RATE * duration 
 
-    def draw_gem(self, lane, y, duration):
-        length = ((Window.width - (NOW_PIXEL+5))/SCREEN_TIME) * duration
-        gem = GemDisplay(pos=(Window.width, y), color=self.colors[lane], length=length)
+        gem = GemDisplay(pos=(x_pos, y), color=self.colors[lane], length=length)
         self.add(gem)
-        self.gems[lane].append(gem)
 
     # called by Player. Causes the right thing to happen
     def gem_hit(self, gem_idx, lane):
@@ -237,74 +191,9 @@ class BeatMatchDisplay(InstructionGroup):
         gem = self.gems[lane][gem_idx]
         gem.on_pass()
 
-    # called by Player. Causes the right thing to happen
-    def on_button_down(self, lane):
-        pass
-
-        # if hit: 
-        #     try:
-        #     # Assume that the user was aiming for the gem that is located the closest to the nowbar.
-        #         dists = [abs(gem.get_x() - self.nowbar.pos[1]) for i, gem in enumerate(self.gems[lane])]
-        #         gem_idx = np.argmin(dists)
-        #         self.gem_hit(gem_idx, lane)
-        #     except:
-        #         pass
-        #     #     print(self.gems[lane], "\n", lane, "\n")
-
-    # called by Player. Causes the right thing to happen
-    def on_button_up(self, lane):
-        button = self.buttons[lane]
-        button.on_up()
-
     # call every frame to make gems and barlines flow down the screen
     def on_update(self, gametime, dt) :
-        dy = ((Window.width - (NOW_PIXEL+5))/SCREEN_TIME) * dt 
 
-        # Schedule to create new barlines
-        if self.barline_idx < len(self.barline_data):
-            if self.barline_data[self.barline_idx]-SCREEN_TIME <= gametime:
-                self.draw_barline()
-                self.barline_idx += 1
+        # self.trans.x = NOW_PIXEL - gametime*RATE
+        self.trans.x = -gametime*RATE + NOW_PIXEL
 
-        # Schedule to create new beats
-        if self.beat_idx < len(self.beat_data):
-            if self.beat_data[self.beat_idx]-SCREEN_TIME <= gametime:
-                self.draw_beat()
-                self.beat_idx += 1
-
-        # Update barlines 
-        killList = []
-        for barline in self.barlines:
-            if not self.paused:
-                alive = barline.translate(dy)
-                if not alive: killList.append(barline)
-
-        # Schedule to create gems per lane
-        for lane in range(self.num_lanes):
-            gem_idx = self.gem_idx[lane]
-            if lane in self.gem_data and gem_idx < len(self.gem_data[lane]):
-                gem_time, duration = self.gem_data[lane][gem_idx]
-        
-                if gem_time-SCREEN_TIME <= gametime:
-                    y = np.interp(lane, [-1,self.num_lanes], [0,GAME_HEIGHT])
-                    self.draw_gem(lane, y, duration)
-                    self.gem_idx[lane] += 1
-
-        # Update gems
-        for lane in range(self.num_lanes):
-            for gem in self.gems[lane]:
-                if not self.paused:
-                    alive = gem.translate(dy)
-                    if not alive: killList.append((lane, gem))
-            
-        # Remove barline/gems from canvas if they are off screen.
-        for obj in killList:
-            if isinstance(obj, tuple):
-                lane, gem = obj
-                self.remove(gem) 
-                self.gems[lane].remove(gem)
-            else:
-                self.remove(obj) 
-                self.barlines.remove(obj)
-
-        self.pops.on_update()
