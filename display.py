@@ -115,14 +115,14 @@ class ButtonDisplay(InstructionGroup):
         self.color.a += .5
 
 class Barline(InstructionGroup):
-    def __init__(self, x):
+    def __init__(self, x, width):
         super(Barline, self).__init__()
-
+        self.width = width
         self.points = [[x, 0],[x, GAME_HEIGHT]]
         self.draw_line()
 
     def draw_line(self):
-        self.barline = Line(points=self.points, width=3)
+        self.barline = Line(points=self.points, width=self.width)
         self.add(Color(0,0,0))
         self.add(self.barline)
 
@@ -138,7 +138,7 @@ class Barline(InstructionGroup):
 
 # Displays and controls all game elements: Nowbar, Buttons, BarLines, Gems.
 class BeatMatchDisplay(InstructionGroup):
-    def __init__(self, lanes, gem_data, barline_data):
+    def __init__(self, lanes, gem_data, barline_data, beat_data):
         super(BeatMatchDisplay, self).__init__()
         self.lanes = lanes
         self.num_lanes = len(lanes)
@@ -155,6 +155,11 @@ class BeatMatchDisplay(InstructionGroup):
         self.barline_data = barline_data
         self.barline_idx = 0
         self.barlines = []
+
+        # To keep track of next bar
+        self.beat_data = beat_data
+        self.beat_idx = 0
+        # self.beats = []
 
         # Draw header 
         self.add(Color(0,0,0))
@@ -198,9 +203,14 @@ class BeatMatchDisplay(InstructionGroup):
             self.add(button)
 
     def draw_barline(self):
-        barline = Barline(Window.width)
+        barline = Barline(Window.width, 3)
         self.add(barline)
         self.barlines.append(barline)
+
+    def draw_beat(self):
+        beat = Barline(Window.width, 1)
+        self.add(beat)
+        self.barlines.append(beat)
 
     def draw_gem(self, lane, y, duration):
         length = ((Window.width - (NOW_PIXEL+5))/SCREEN_TIME) * duration
@@ -255,6 +265,12 @@ class BeatMatchDisplay(InstructionGroup):
             if self.barline_data[self.barline_idx]-SCREEN_TIME <= gametime:
                 self.draw_barline()
                 self.barline_idx += 1
+
+        # Schedule to create new beats
+        if self.beat_idx < len(self.beat_data):
+            if self.beat_data[self.beat_idx]-SCREEN_TIME <= gametime:
+                self.draw_beat()
+                self.beat_idx += 1
 
         # Update barlines 
         killList = []
