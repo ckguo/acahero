@@ -17,12 +17,12 @@ from common.clock import *
 from common.synth import *
 
 from kivy.graphics.instructions import InstructionGroup
-from kivy.graphics import Color, Ellipse, Line, Rectangle
+from kivy.graphics import Color, Ellipse, Line, Rectangle, Triangle
 from kivy.graphics import PushMatrix, PopMatrix, Translate, Scale, Rotate
 from kivy.clock import Clock as kivyClock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
-from common.kivyparticle import ParticleSystem
+# from common.kivyparticle import ParticleSystem
 from kivy.config import Config
 
 from random import randint, random
@@ -33,9 +33,10 @@ from functools import partial
 from pitch_detector import *
 from display import *
 
-NOW_PIXEL = 60 # Pixel of now bar
-SCREEN_TIME = 2.0 # Amount of time 
-GAME_HEIGHT = Window.height - 100 # Top of game screen
+NOW_PIXEL = Window.width*.07 # Pixel of now bar
+SCREEN_TIME = 10.0 # Amount of time 
+RATE = Window.width/SCREEN_TIME
+GAME_HEIGHT = Window.height*.8 # Top of game screen
 
 Config.set('graphics', 'fullscreen', 'auto')
 Config.write()
@@ -58,6 +59,9 @@ class MainWidget(BaseWidget) :
         self.name = name_label()
         self.add_widget(self.name)
 
+        self.pitchlabel = center_label()
+        self.add_widget(self.pitchlabel)
+
         # for i in range(8):
         #     self.img = Image(source='pink_eighth.png', 
         #                     pos=(randint(0,Window.width),randint(0,Window.height)),  
@@ -77,8 +81,13 @@ class MainWidget(BaseWidget) :
         self.audio = None
         self.audio = AudioController("songs/wdik/wdik-All.wav", "songs/wdik/wdik-Tenor.wav", receive_audio_func=self.receive_audio)
 
-        self.lanes, self.gem_data, self.barlineData = SongData().read_data('songs/wdik/Tenor.txt', 'songs/wdik/barlines.txt')
-        self.display = BeatMatchDisplay(self.lanes, self.gem_data, self.barlineData)
+        # Display user's cursor
+        self.canvas.add(Color(0,1,0))
+        self.user = Triangle(points=[NOW_PIXEL-10, 200-10, NOW_PIXEL-10, 200+10, NOW_PIXEL+20, 200])
+        self.canvas.add(self.user)
+
+        self.lanes, self.gem_data, self.barlineData, self.beatData = SongData().read_data('songs/wdik/Tenor.txt', 'songs/wdik/barlines.txt', 'songs/wdik/beats.txt')
+        self.display = BeatMatchDisplay(self.lanes, self.gem_data, self.barlineData, self.beatData)
         self.canvas.add(self.display)
 
         self.player = Player(self.lanes, self.gem_data, self.display, self.audio, PitchDetector())
@@ -88,19 +97,17 @@ class MainWidget(BaseWidget) :
         self.scorelabel.text = "[color=000000]Score: 0"
         self.timelabel.text = "Time: %.2f" % self.gametime
         self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]\n[i]12345:[/i] [size=30]gems[/size]"
+        self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f' % (self.player.correct_pitch, self.player.cur_pitch)
 
-        # Display user's cursor
-        self.canvas.add(Color(0,1,0))
-        self.user = Triangle(points=[NOW_PIXEL-5, 0-10, NOW_PIXEL-5, 0+10, NOW_PIXEL+15, 0])
-        self.canvas.add(self.user)
-        
-        # Display particle system? 
-        # load up the particle system, set initial emitter point and start it.
-        self.ps = ParticleSystem('particle/particle.pex')
-        self.ps.emitter_x = NOW_PIXEL
-        self.ps.emitter_y = 0.0
-        self.ps.start()
-        self.add_widget(self.ps)
+        # # Display particle system? 
+        # # load up the particle system, set initial emitter point and start it.
+        # self.ps = ParticleSystem('particle/particle.pex')
+        # self.ps.emitter_x = NOW_PIXEL
+        # self.ps.emitter_y = 0.0
+        # self.ps.start()
+        # self.add_widget(self.ps)
+
+        self.display.draw_objects()
 
     def on_key_down(self, keycode, modifiers):
         # play / pause toggle
@@ -115,15 +122,7 @@ class MainWidget(BaseWidget) :
     def on_touch_move(self, touch):
         x, y = touch.pos
 
-        # self.ps.emitter_x = x
-        self.ps.emitter_y = y
 
-        # Update the user's cursor
-        if y < GAME_HEIGHT:
-            self.canvas.remove(self.user)
-            self.canvas.add(Color(0,1,0))
-            self.user = Triangle(points=[NOW_PIXEL-5, y-10, NOW_PIXEL-5, y+10, NOW_PIXEL+15, y])
-            self.canvas.add(self.user)
 
         # Check if position is near a gem
         self.player.on_touch_move(y, self.gametime)
@@ -151,6 +150,7 @@ class MainWidget(BaseWidget) :
 
             self.timelabel.text = "Time: %.2f" % self.gametime
             self.scorelabel.text = 'Score: {}'.format(self.player.get_score())
+            self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f' % (self.player.correct_pitch, self.player.cur_pitch)
 
             # Only display a streak if there is a current streak > 1
             self.streaklabel.text = '[color=CFB53B]{}X Streak'.format(self.player.get_streak()) if self.player.get_streak() > 1 else ''
@@ -172,11 +172,23 @@ class MainWidget(BaseWidget) :
             elif -change*3 < self.gametime < -change*2:
                 self.streaklabel.text = '3'
 
+                    # self.ps.emitter_x = x
+        
+        if not np.round(self.player.cur_pitch) in self.lanes:
+            y = 0
+        else:
+            lane = self.lanes.index(np.round(self.player.cur_pitch))
+            y = np.interp(lane, [-1, len(self.lanes)], [0, GAME_HEIGHT])
+        # self.ps.emitter_y = y
+
+        # Update the user's cursor
+        if y < GAME_HEIGHT:
+            self.user.points = [NOW_PIXEL-10, y-10, NOW_PIXEL-10, y+10, NOW_PIXEL+20, y]
+
     def receive_audio(self, frames, num_channels) :
         # handle 1 or 2 channel input.
         # if input is stereo, mono will pick left or right channel. This is used
         # for input processing that must receive only one channel of audio (RMS, pitch, onset)
-        print len(frames)
         if num_channels == 2:
             mono = frames[0::2] # pick left or right channel
         else:
@@ -240,17 +252,19 @@ class SongData(object):
         self.GemDict = {}
         self.BarlineList = []
         self.Lanes = []
+        self.BeatList = []
 
     # read the gems and song data. You may want to add a secondary filepath
     # argument if your barline data is stored in a different txt file.
-    def read_data(self, gemFile, barlineFile):
+    def read_data(self, gemFile, barlineFile, beatFile):
     # TODO: figure out how gem and barline data should be accessed...
         gems = open(gemFile, 'r').readlines()
         barlines = open(barlineFile, 'r').readlines()
+        beats = open(beatFile, 'r').readlines()
 
         for i, gem in enumerate(gems):
             if (i==0):
-                self.Lanes = gem.split(" ")
+                self.Lanes = [int(x) for x in gem.split(" ")]
                 continue
 
             time, duration, lane, lyric = gem.split("\t")
@@ -263,7 +277,11 @@ class SongData(object):
             time = barline.strip()
             self.BarlineList.append(float(time))
 
-        return self.Lanes, self.GemDict, self.BarlineList
+        for beat in beats:
+            time = beat.strip()
+            self.BeatList.append(float(time))
+
+        return self.Lanes, self.GemDict, self.BarlineList, self.BeatList
 
 
 # Handles game logic and keeps score.
@@ -288,6 +306,7 @@ class Player(object):
 
         self.pitch = pitch_detector
         self.correct_pitch = 0
+        self.cur_pitch = 0
 
     # called by MainWidget
     def on_touch_move(self, y, time):
@@ -312,8 +331,6 @@ class Player(object):
         #     if not hit:
         #         self.streak = 0
 
-        self.display.on_button_down(lane)
-
     def get_score(self):
         return self.score 
 
@@ -326,33 +343,38 @@ class Player(object):
     # needed to check if for pass gems (ie, went past the slop window)
     def on_update(self, gametime):
         # Detect if gem was missed / passed
-        # for lane in range(5):
-        #     gem_idx = self.gem_idx[lane]
+        for lane in range(self.num_lanes):
+            gem_idx = self.gem_idx[lane]
 
-        #     if lane in self.gem_data and gem_idx < len(self.gem_data[lane]):
-        #         gem_time, duration = self.gem_data[lane][gem_idx]
+            if lane in self.gem_data and gem_idx < len(self.gem_data[lane]):
+                gem_time, duration = self.gem_data[lane][gem_idx]
 
-        #         if gem_time+self.slop_window < gametime:
-        #             self.gem_idx[lane] += 1
+                if gem_time < gametime < gem_time + duration:
+                    self.correct_pitch = self.lanes[lane]
 
-        #             # If the gem was not hit, then play missed sfx, mute solo, change colors, and reset the streak
-        #             if not self.gem_status[lane][gem_idx]: 
-        #                 self.audio.play_sfx()
-        #                 self.audio.mute_solo(gametime)
-        #                 self.display.gem_pass(lane)
-        #                 self.streak = 0
+                if gametime > gem_time + duration:
+                    self.gem_idx[lane] += 1
+
+                    # If the gem was not hit, then play missed sfx, mute solo, change colors, and reset the streak
+                    # if not self.gem_status[lane][gem_idx]: 
+                    #     self.audio.play_sfx()
+                    #     self.audio.mute_solo(gametime)
+                    #     self.display.gem_pass(lane)
+                    #     self.streak = 0
 
         # # Update longest streak
         # if self.longest_streak < self.streak:
         #     self.longest_streak = self.streak
 
-        pass
 
     def receive_audio(self, mono):
         self.cur_pitch = self.pitch.write(mono)
         fs = 44100.
         if np.round(self.cur_pitch) == self.correct_pitch:
-            self.score += len(mono)/fs
+            if np.round(self.cur_pitch) == 0:
+                self.score += 0.1*len(mono)/fs
+            else:
+                self.score += len(mono)/fs
         elif self.correct_pitch == 0 or self.cur_pitch == 0:
             self.score -= 0.5*len(mono)/fs
         else:
