@@ -37,7 +37,6 @@ class GemDisplay(InstructionGroup):
         self.circle = CEllipse( cpos=(self.pos), size=(20,20), segments = 10 )
         self.add(self.circle)
 
-        print('./lyrics/' + self.lyric + '.png')
         self.add(Color(256, 256, 256))
         texture = CoreImage('./lyrics/' + self.lyric + '.png').texture
         self.text = Rectangle( pos=(self.pos[0]+10, self.pos[1]+10), size=(100, 50), texture=texture )

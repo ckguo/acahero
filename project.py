@@ -371,7 +371,11 @@ class Player(object):
 
 
     def receive_audio(self, mono):
-        self.cur_pitch = self.pitch.write(mono)
+        if self.cur_pitch != 0:
+            conf = 0.5
+        else:
+            conf = 0.8
+        self.cur_pitch = self.pitch.write(mono, conf)
         fs = 44100.
         if np.round(self.cur_pitch) == self.correct_pitch:
             if np.round(self.cur_pitch) == 0:

@@ -41,9 +41,7 @@ class PitchDetector(object):
     # Add incoming data to pitch detector. Return estimated pitch as floating point 
     # midi value.
     # Returns 0 if a strong pitch is not found.
-    def write(self, signal):
-        conf = 0.8
-
+    def write(self, signal, conf):
         self.buffer.write(signal) # insert data
 
         # read data in the fixed chunk sizes, as many as possible.
