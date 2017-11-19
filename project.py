@@ -381,10 +381,10 @@ class Player(object):
             if np.round(self.cur_pitch) == 0:
                 self.score += 0.1*len(mono)/fs
             else:
-                self.score += len(mono)/fs
+                self.score += 10*len(mono)/fs
         elif self.correct_pitch == 0 or self.cur_pitch == 0:
-            self.score -= 0.5*len(mono)/fs
+            self.score -= 0.1*len(mono)/fs
         else:
-            self.cur_pitch -= 0.5*len(mono) * (np.round(self.cur_pitch) - self.correct_pitch)/fs
+            self.score -= 0.5*len(mono) * max(2,(np.round(self.cur_pitch) - self.correct_pitch))/fs
 
 run(MainWidget)
