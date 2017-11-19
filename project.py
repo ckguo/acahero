@@ -80,8 +80,8 @@ class MainWidget(BaseWidget) :
         self.audio = None
         self.audio = AudioController("songs/wdik/wdik-All.wav", "songs/wdik/wdik-Tenor.wav", receive_audio_func=self.receive_audio)
 
-        self.lanes, self.gem_data, self.barlineData = SongData().read_data('songs/wdik/Tenor.txt', 'songs/wdik/barlines.txt')
-        self.display = BeatMatchDisplay(self.lanes, self.gem_data, self.barlineData)
+        self.lanes, self.gem_data, self.barlineData, self.beatData = SongData().read_data('songs/wdik/Tenor.txt', 'songs/wdik/barlines.txt', 'songs/wdik/beats.txt')
+        self.display = BeatMatchDisplay(self.lanes, self.gem_data, self.barlineData, self.beatData)
         self.canvas.add(self.display)
 
         self.player = Player(self.lanes, self.gem_data, self.display, self.audio, PitchDetector())
@@ -243,27 +243,33 @@ class SongData(object):
         self.GemDict = {}
         self.BarlineList = []
         self.Lanes = []
+        self.BeatList = []
 
     # read the gems and song data. You may want to add a secondary filepath
     # argument if your barline data is stored in a different txt file.
-    def read_data(self, gemFile, barlineFile):
+    def read_data(self, gemFile, barlineFile, beatFile):
     # TODO: figure out how gem and barline data should be accessed...
         gems = open(gemFile, 'r').readlines()
         barlines = open(barlineFile, 'r').readlines()
+        beats = open(beatFile, 'r').readlines()
 
         for i, gem in enumerate(gems):
             if (i==0):
                 self.Lanes = gem.split(" ")
                 continue
 
-            time, duration, lane = gem.split("\t")
+            time, duration, lane, syllable = gem.split("\t")
             self.GemDict.setdefault(int(lane), []).append((float(time), float(duration)))
 
         for barline in barlines:
             time = barline.strip()
             self.BarlineList.append(float(time))
 
-        return self.Lanes, self.GemDict, self.BarlineList
+        for beat in beats:
+            time = beat.strip()
+            self.BeatList.append(float(time))
+
+        return self.Lanes, self.GemDict, self.BarlineList, self.BeatList
 
 
 # Handles game logic and keeps score.
