@@ -350,6 +350,7 @@ class Player(object):
                     self.correct_pitch = self.lanes[lane]
 
                 if gametime > gem_time + duration:
+                    self.correct_pitch = 0
                     self.gem_idx[lane] += 1
 
                     # If the gem was not hit, then play missed sfx, mute solo, change colors, and reset the streak
