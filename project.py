@@ -58,6 +58,9 @@ class MainWidget(BaseWidget) :
         self.name = name_label()
         self.add_widget(self.name)
 
+        self.pitchlabel = center_label()
+        self.add_widget(self.pitchlabel)
+
         # for i in range(8):
         #     self.img = Image(source='pink_eighth.png', 
         #                     pos=(randint(0,Window.width),randint(0,Window.height)),  
@@ -88,6 +91,7 @@ class MainWidget(BaseWidget) :
         self.scorelabel.text = "[color=000000]Score: 0"
         self.timelabel.text = "Time: %.2f" % self.gametime
         self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]\n[i]12345:[/i] [size=30]gems[/size]"
+        self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f' % (self.player.correct_pitch, self.player.cur_pitch)
 
         # Display user's cursor
         self.canvas.add(Color(0,1,0))
@@ -176,7 +180,6 @@ class MainWidget(BaseWidget) :
         # handle 1 or 2 channel input.
         # if input is stereo, mono will pick left or right channel. This is used
         # for input processing that must receive only one channel of audio (RMS, pitch, onset)
-        print len(frames)
         if num_channels == 2:
             mono = frames[0::2] # pick left or right channel
         else:
