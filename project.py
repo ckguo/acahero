@@ -82,7 +82,8 @@ class MainWidget(BaseWidget) :
         self.audio = AudioController("songs/wdik/wdik-All.wav", "songs/wdik/wdik-Tenor.wav", receive_audio_func=self.receive_audio)
 
         # Display user's cursor
-        self.canvas.add(Color(0,1,0))
+        self.cursorcol = Color(1,0,0)
+        self.canvas.add(self.cursorcol)
         self.user = Triangle(points=[NOW_PIXEL-10, 200-10, NOW_PIXEL-10, 200+10, NOW_PIXEL+20, 200])
         self.canvas.add(self.user)
 
@@ -164,19 +165,18 @@ class MainWidget(BaseWidget) :
             #     self.endgame()
 
             # 3,2,1 Start game countdown
-            change = SCREEN_TIME/3
-            if -change < self.gametime < 0:
-                self.streaklabel.text = '1'
-            elif -change*2 < self.gametime < -change:
-                self.streaklabel.text = '2'
-            elif -change*3 < self.gametime < -change*2:
+            if -3 < self.gametime < -2:
                 self.streaklabel.text = '3'
-
-                    # self.ps.emitter_x = x
+            elif -2 < self.gametime < -1:
+                self.streaklabel.text = '2'
+            elif -1 < self.gametime < 0:
+                self.streaklabel.text = '1'
         
         if not np.round(self.player.cur_pitch) in self.lanes:
+            self.cursorcol = Color(1,0,0)
             y = 0
         else:
+            self.cursorcol = Color(0,1,0)
             lane = self.lanes.index(np.round(self.player.cur_pitch))
             y = np.interp(lane, [-1, len(self.lanes)], [0, GAME_HEIGHT])
         # self.ps.emitter_y = y
