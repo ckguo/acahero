@@ -66,7 +66,9 @@ class MainWidget(BaseWidget) :
         self.canvas.add(self.user)
 
         self.lanes, gem_data, barlineData, self.beatData = SongData().read_data('songs/wdik/Tenor.txt', 'songs/wdik/barlines.txt', 'songs/wdik/beats.txt')
+        self.healthbar = HealthBar()
         self.display = BeatMatchDisplay(self.lanes, gem_data, barlineData, self.beatData)
+        self.canvas.add(self.healthbar)
         self.canvas.add(self.display)
 
         self.player = Player(self.lanes, gem_data, self.display, self.audio, PitchDetector())
@@ -142,8 +144,9 @@ class MainWidget(BaseWidget) :
             self.streaklabel.text = '[color=CFB53B]{}X Streak'.format(self.player.get_streak()) if self.player.get_streak() > 1 else ''
 
             self.audio.on_update(self.gametime)
-            self.display.on_update(self.gametime, dt, self.player.get_score())
+            self.display.on_update(self.gametime, dt)
             self.player.on_update(self.gametime)
+            self.healthbar.on_update(self.player.get_score())
 
             # 3,2,1 Start game countdown
             if -3 < self.gametime < -2:

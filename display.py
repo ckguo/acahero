@@ -101,6 +101,23 @@ class Barline(InstructionGroup):
         self.add(color)
         self.add(self.barline)
 
+class HealthBar(InstructionGroup):
+    def __init__(self):
+        super(HealthBar, self).__init__()
+        self.redbar = Line(points=[Window.width*0.85, Window.height*0.93, Window.width*0.95, Window.height*0.93], width=12)
+        self.add(Color(.9,.3,.3,1))
+        self.add(self.redbar)
+        self.greenbar = Line(points=[Window.width*0.85, Window.height*0.93, Window.width*(0.95), Window.height*0.93], width=12)
+        self.add(Color(.4,.8,.4,1))
+        self.add(self.greenbar)
+
+    def add_healthbar(self, score):
+        self.greenbar.points = [Window.width*0.85, Window.height*0.93, Window.width*(0.85+0.1*min(score, 1.0)), Window.height*0.93]
+
+    def on_update(self, score):
+        self.add_healthbar(score)
+
+
 # Displays and controls all game elements: Nowbar, Buttons, BarLines, Gems.
 class BeatMatchDisplay(InstructionGroup):
     def __init__(self, lanes, gem_data, barline_data, beat_data):
@@ -117,7 +134,6 @@ class BeatMatchDisplay(InstructionGroup):
 
         self.add_header()
         self.add_nowbar()
-        self.add_healthbar()
         self.add_lines() # Add gem lines
 
         self.pops = AnimGroup() # Animations after gems are hit.
@@ -154,9 +170,6 @@ class BeatMatchDisplay(InstructionGroup):
         self.nowbar = Rectangle(pos=(NOW_PIXEL, 0), size=(10, GAME_HEIGHT))
         self.add(Color(.3,.3,.3,.2))
         self.add(self.nowbar)
-
-    def add_healthbar(self):
-        pass
 
     def add_lines(self):
         self.lines = [Line(points=[(Window.width, lane_to_y_pos(y, self.num_lanes)), (0, lane_to_y_pos(y, self.num_lanes))], width=0.4) for y in range(self.num_lanes)]      
@@ -195,7 +208,7 @@ class BeatMatchDisplay(InstructionGroup):
         gem.on_pass()
 
     # call every frame to make gems and barlines flow down the screen
-    def on_update(self, gametime, dt, score) :
+    def on_update(self, gametime, dt) :
         # self.trans.x = NOW_PIXEL - gametime*RATE
         self.trans.x = -gametime*RATE + NOW_PIXEL
 
