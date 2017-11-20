@@ -134,6 +134,7 @@ class BeatMatchDisplay(InstructionGroup):
         self.gem_data = gem_data
         self.barline_data = barline_data
         self.beat_data = beat_data
+        self.action_colors = {} # Dictionary that stores the current color of the gems that passed, keyed by lane.
 
         self.add_header()
         self.add_nowbar()
@@ -202,35 +203,46 @@ class BeatMatchDisplay(InstructionGroup):
         # on: Singing right pitch
 
         if not current_gem: return
+
         lane, gem_idx = current_gem
         gem_time, duration, lyric = self.gem_data[lane][gem_idx]
         x = gem_time*RATE
         y = lane_to_y_pos(lane, self.num_lanes)
         length = (NOW_PIXEL+10) - (x + self.trans.x)
-
-        if action == 'pass':
-            gem = GemDisplay(pos=(x, y), color=Color(.8,.8,.8), length=length, lyric=False)
-            self.add(gem)
         
-        elif action == 'on':
-            # # Display particle 
-            # self.ps.emitter_x = NOW_PIXEL+10
-            # self.ps.emitter_y = y
-            # self.ps.start()
+        color = False
+        if lane not in self.action_colors:
+            self.action_colors[lane] = {}
 
-            # Change gem rectangle color to green as it passes
-            gem = GemDisplay(pos=(x, y), color=Color(0,.8,0), length=length, lyric=False)
-            self.add(gem)
-
-        elif action == 'off':
-            # Change gem rectangle color to red as it passes
-            gem = GemDisplay(pos=(x, y), color=Color(0.8,0,0), length=length, lyric=False)
-            self.add(gem)
+        if gem_idx in self.action_colors[lane]:
+            color = self.action_colors[lane][gem_idx] 
             
-            # self.add(Color(0.8,0,0))
-            # x = NOW_PIXEL + self.trans.x 
-            # line = Line(points=[x,y-10, x, y+10], width=2)
-            # self.add(line)
+            if action == 'pass':
+                color.r = (color.r+0.8)/2
+                color.g = (color.g+0.8)/2
+                color.b = (color.b+0.8)/2
+            elif action == 'on':
+                color.r = (color.r+0.)/2
+                color.g = (color.g+0.8)/2
+                color.b = (color.b+0.)/2
+            elif action == 'off':
+                color.r = (color.r+0.8)/2
+                color.g = (color.g+0)/2
+                color.b = (color.b+0.)/2
+
+        else:
+            if action == 'pass':
+                color = Color(.8,.8,.8)
+            elif action == 'on':
+                color = Color(0.,.8,0.)
+            elif action == 'off':
+                color = Color(0.8,0.,0.)
+        
+            self.action_colors[lane][gem_idx] = color
+
+        if color:
+            gem = GemDisplay(pos=(x, y), color=color, length=length, lyric=False)
+            self.add(gem)
 
     # called by Player. Causes the right thing to happen
     def gem_hit(self, gem_idx, lane):
