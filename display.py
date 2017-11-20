@@ -175,6 +175,20 @@ class BeatMatchDisplay(InstructionGroup):
         gem = GemDisplay(pos=(x_pos, y), color=self.colors[lane], length=length, lyric=lyric)
         self.add(gem)
 
+    # Called by Player.
+    def animate_action(self, action, current_gem):
+        # pass: Silent when supposed to be singing
+        # miss: Singing when supposed to be silent
+        # silent: Correctly silent
+        # off: Singing wrong pitch
+        # on: Singing right pitch
+
+        if not current_gem: return
+        lane, gem_idx = current_gem
+
+        if action == 'pass':
+            pass
+
     # called by Player. Causes the right thing to happen
     def gem_hit(self, gem_idx, lane):
         gem = self.gems[lane][gem_idx]

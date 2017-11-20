@@ -287,12 +287,7 @@ class Player(object):
         self.correct_pitch = 0
         self.cur_pitch = 0
         self.cor_lane = 0
-
-        # pass: Silent when supposed to be singing
-        # miss: Singing when supposed to be silent
-        # off: Singing wrong pitch
-        # on: Singing right pitch
-        self.action = 'pass' # pass, miss, off, or on
+        self.cur_gem = False # Tuple (lane, gem_idx)
 
     def get_score(self):
         return self.score/self.max_score
@@ -313,16 +308,15 @@ class Player(object):
 
                 if gem_time < gametime < gem_time + duration:
                     self.correct_pitch = self.lanes[lane]
+                    self.cur_gem = (lane, gem_idx)
 
                 if gametime > gem_time + duration:
                     self.correct_pitch = 0
+                    self.cur_gem = False
                     self.gem_idx[lane] += 1
                     self.max_score += 2
 
-
     def receive_audio(self, mono):
-        self.action = 'pass'
-
         if self.correct_pitch in self.lanes:
             self.cor_lane = self.lanes.index(self.correct_pitch)
         else:
@@ -335,25 +329,34 @@ class Player(object):
         self.cur_pitch = self.pitch.write(mono, conf)
         fs = 44100.
 
-        # Singing correct pitch; Action: on
         if np.round(self.cur_pitch) == self.correct_pitch:
-            self.action = 'on'
             # if you're correctly silent, smaller multiplier for score increase
             if np.round(self.cur_pitch) == 0:
+                action = 'silent'
                 self.score += 0.1*len(mono)/fs
+
             # if you're correctly singing a note, larger multiplier for score increase
             else:
+                action = 'on'
                 self.score += 5*len(mono)/fs
                 # This is the bonus for hitting each note
                 if not self.gem_status[self.cor_lane][self.gem_idx[self.cor_lane]]:
                     self.score += 2
                     self.gem_status[self.cor_lane][self.gem_idx[self.cor_lane]] = True
-        # If you're singing when you're supposed to be silent or silent when supposed to be singing, small penalty
-        elif self.correct_pitch == 0 or self.cur_pitch == 0:
+        
+        # If you're singing when you're supposed to be silent 
+        elif self.correct_pitch == 0:
+            action = 'miss'
             self.score -= 0.1*len(mono)/fs
+
+        # If you're silent when supposed to be singing, small penalty
+        elif self.cur_pitch == 0:
+            action = 'pass'
+            self.score -= 0.1*len(mono)/fs
+
         # If you're singing the wrong note, you're penalized more based on how far off you are
         else:
-            self.action = 'miss'
+            action = 'off'
             self.score -= 0.5*len(mono) * max(2,(np.round(self.cur_pitch) - self.correct_pitch))/fs
 
         # max score is just used for the percent calculation, don't worry about it
@@ -362,5 +365,7 @@ class Player(object):
             self.max_score += 3*len(mono)/fs
         else:
             self.max_score += 0.1*len(mono)/fs
+
+        self.display.animate_action(action, self.cur_gem)
 
 run(MainWidget)
