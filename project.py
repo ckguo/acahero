@@ -1,10 +1,5 @@
 #pset6.py
 
-# Silent when supposed to be singing
-# Singing when supposed to be silent
-# Singing wrong pitch
-# Singing right pitch
-
 import sys
 sys.path.append('..')
 from common.core import *
@@ -70,8 +65,8 @@ class MainWidget(BaseWidget) :
         self.user = Triangle(points=[NOW_PIXEL-10, 200-10, NOW_PIXEL-10, 200+10, NOW_PIXEL+20, 200])
         self.canvas.add(self.user)
 
-        self.lanes, gem_data, barlineData, beatData = SongData().read_data('songs/wdik/Tenor.txt', 'songs/wdik/barlines.txt', 'songs/wdik/beats.txt')
-        self.display = BeatMatchDisplay(self.lanes, gem_data, barlineData, beatData)
+        self.lanes, gem_data, barlineData, self.beatData = SongData().read_data('songs/wdik/Tenor.txt', 'songs/wdik/barlines.txt', 'songs/wdik/beats.txt')
+        self.display = BeatMatchDisplay(self.lanes, gem_data, barlineData, self.beatData)
         self.canvas.add(self.display)
 
         self.player = Player(self.lanes, gem_data, self.display, self.audio, PitchDetector())
@@ -98,11 +93,6 @@ class MainWidget(BaseWidget) :
         if keycode[1] == 'p':
             self.toggle()
 
-        # # button down
-        # button_idx = lookup(keycode[1], '12345', (0,1,2,3,4))
-        # if button_idx != None:
-        #     self.player.on_button_down(button_idx, self.gametime)
-
     def toggle(self):
         self.gameon = not self.gameon
         self.audio.toggle()
@@ -113,7 +103,7 @@ class MainWidget(BaseWidget) :
     def endgame(self):
         self.toggle()
         self.timelabel.text = "Game Ended"
-        self.streaklabel.text = '[color=CFB53B]Final Score: {}\nLongest Streak: {}'.format(self.player.get_score(), self.player.get_longest_streak())
+        self.streaklabel.text = '[color=CFB53B]Final Score: {}'.format(self.player.get_score())
 
     def get_cursor_y(self):
         bottom_pitch = self.lanes[-2] - 12
@@ -155,10 +145,6 @@ class MainWidget(BaseWidget) :
             self.display.on_update(self.gametime, dt, self.player.get_score())
             self.player.on_update(self.gametime)
 
-            # # End game after 72.8 seconds 
-            # if self.gametime > 72.8:
-            #     self.endgame()
-
             # 3,2,1 Start game countdown
             if -3 < self.gametime < -2:
                 self.streaklabel.text = '3'
@@ -166,6 +152,10 @@ class MainWidget(BaseWidget) :
                 self.streaklabel.text = '2'
             elif -1 < self.gametime < 0:
                 self.streaklabel.text = '1'
+
+            # End game
+            if self.gametime > self.beatData[-1]+2:
+                self.endgame()
         
         if self.player.cur_pitch == 0:
             self.cursorcol.r = 1
@@ -298,6 +288,12 @@ class Player(object):
         self.cur_pitch = 0
         self.cor_lane = 0
 
+        # pass: Silent when supposed to be singing
+        # miss: Singing when supposed to be silent
+        # off: Singing wrong pitch
+        # on: Singing right pitch
+        self.action = 'pass' # pass, miss, off, or on
+
     def get_score(self):
         return self.score/self.max_score
 
@@ -325,6 +321,8 @@ class Player(object):
 
 
     def receive_audio(self, mono):
+        self.action = 'pass'
+
         if self.correct_pitch in self.lanes:
             self.cor_lane = self.lanes.index(self.correct_pitch)
         else:
@@ -336,8 +334,10 @@ class Player(object):
             conf = 0.8
         self.cur_pitch = self.pitch.write(mono, conf)
         fs = 44100.
-        # if you're doing things right
+
+        # Singing correct pitch; Action: on
         if np.round(self.cur_pitch) == self.correct_pitch:
+            self.action = 'on'
             # if you're correctly silent, smaller multiplier for score increase
             if np.round(self.cur_pitch) == 0:
                 self.score += 0.1*len(mono)/fs
@@ -348,11 +348,12 @@ class Player(object):
                 if not self.gem_status[self.cor_lane][self.gem_idx[self.cor_lane]]:
                     self.score += 2
                     self.gem_status[self.cor_lane][self.gem_idx[self.cor_lane]] = True
-        # If you're singing when you're supposed to be silent, small penalty
+        # If you're singing when you're supposed to be silent or silent when supposed to be singing, small penalty
         elif self.correct_pitch == 0 or self.cur_pitch == 0:
             self.score -= 0.1*len(mono)/fs
         # If you're singing the wrong note, you're penalized more based on how far off you are
         else:
+            self.action = 'miss'
             self.score -= 0.5*len(mono) * max(2,(np.round(self.cur_pitch) - self.correct_pitch))/fs
 
         # max score is just used for the percent calculation, don't worry about it
