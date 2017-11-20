@@ -42,7 +42,7 @@ def name_label() :
 
 def center_label() :
     l = Label(text = "", halign='center', valign='center', font_size='45sp',
-              pos=(Window.width * 0.43, Window.height * 0.4),
+              pos=(Window.width * 0.43, Window.height * 0.3),
               text_size=(Window.width, Window.height), color=(0,0,0), markup=True)
     return l
 

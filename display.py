@@ -21,7 +21,7 @@ def lane_to_y_pos(lane, num_lanes):
 
 # display for a single gem at a position with a color (if desired)
 class GemDisplay(InstructionGroup):
-    def __init__(self, pos, color, length, lyric):
+    def __init__(self, pos, color, length, lyric=False):
         super(GemDisplay, self).__init__()  
         self.rectcolor = color
         self.circolor = Color(color.r, color.g, color.b, 1)
@@ -31,19 +31,22 @@ class GemDisplay(InstructionGroup):
         self.draw_gem()
 
     def draw_gem(self):
+        if self.lyric:
+            # Draw lyric
+            self.add(Color(256, 256, 256))
+            texture = CoreImage('./lyrics/' + self.lyric + '.png').texture
+            self.text = Rectangle( pos=(self.pos[0]+10, self.pos[1]+10), size=(100, 50), texture=texture )
+            self.add(self.text)
+
         # Draw rectangle
         self.add(self.rectcolor)
         self.gem = Rectangle( pos=(self.pos[0], self.pos[1]-10), size=(self.length, 20) )
         self.add(self.gem)
 
+        # Draw circle
         self.add(self.circolor)
         self.circle = CEllipse( cpos=(self.pos), size=(20,20), segments = 10 )
         self.add(self.circle)
-
-        self.add(Color(256, 256, 256))
-        texture = CoreImage('./lyrics/' + self.lyric + '.png').texture
-        self.text = Rectangle( pos=(self.pos[0]+10, self.pos[1]+10), size=(100, 50), texture=texture )
-        self.add(self.text)
 
         # # Draw music note
         # self.add(Color(0,0,0))
@@ -120,7 +123,7 @@ class HealthBar(InstructionGroup):
 
 # Displays and controls all game elements: Nowbar, Buttons, BarLines, Gems.
 class BeatMatchDisplay(InstructionGroup):
-    def __init__(self, lanes, gem_data, barline_data, beat_data):
+    def __init__(self, lanes, gem_data, barline_data, beat_data, ps):
         super(BeatMatchDisplay, self).__init__()
         self.lanes = lanes
         self.num_lanes = len(lanes)
@@ -138,6 +141,8 @@ class BeatMatchDisplay(InstructionGroup):
 
         self.pops = AnimGroup() # Animations after gems are hit.
         self.add(self.pops)
+
+        self.ps = ps
 
         self.paused = True
 
@@ -198,9 +203,34 @@ class BeatMatchDisplay(InstructionGroup):
 
         if not current_gem: return
         lane, gem_idx = current_gem
+        gem_time, duration, lyric = self.gem_data[lane][gem_idx]
+        x = gem_time*RATE
+        y = lane_to_y_pos(lane, self.num_lanes)
+        length = (NOW_PIXEL+10) - (x + self.trans.x)
 
         if action == 'pass':
-            pass
+            gem = GemDisplay(pos=(x, y), color=Color(.8,.8,.8), length=length, lyric=False)
+            self.add(gem)
+        
+        elif action == 'on':
+            # # Display particle 
+            # self.ps.emitter_x = NOW_PIXEL+10
+            # self.ps.emitter_y = y
+            # self.ps.start()
+
+            # Change gem rectangle color to green as it passes
+            gem = GemDisplay(pos=(x, y), color=Color(0,.8,0), length=length, lyric=False)
+            self.add(gem)
+
+        elif action == 'off':
+            # Change gem rectangle color to red as it passes
+            gem = GemDisplay(pos=(x, y), color=Color(0.8,0,0), length=length, lyric=False)
+            self.add(gem)
+            
+            # self.add(Color(0.8,0,0))
+            # x = NOW_PIXEL + self.trans.x 
+            # line = Line(points=[x,y-10, x, y+10], width=2)
+            # self.add(line)
 
     # called by Player. Causes the right thing to happen
     def gem_hit(self, gem_idx, lane):
