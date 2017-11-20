@@ -112,7 +112,7 @@ class HealthBar(InstructionGroup):
         self.add(self.greenbar)
 
     def add_healthbar(self, score):
-        self.greenbar.points = [Window.width*0.85, Window.height*0.93, Window.width*(0.85+0.1*min(score, 1.0)), Window.height*0.93]
+        self.greenbar.points = [Window.width*0.85, Window.height*0.93, Window.width*(0.85+0.1*score ), Window.height*0.93]
 
     def on_update(self, score):
         self.add_healthbar(score)

@@ -296,7 +296,7 @@ class Player(object):
         self.cur_gem = False # Tuple (lane, gem_idx)
 
     def get_score(self):
-        return self.score/self.max_score
+        return min(self.score/self.max_score, 1.0)
 
     def get_streak(self):
         return self.streak
