@@ -336,19 +336,26 @@ class Player(object):
             conf = 0.8
         self.cur_pitch = self.pitch.write(mono, conf)
         fs = 44100.
+        # if you're doing things right
         if np.round(self.cur_pitch) == self.correct_pitch:
+            # if you're correctly silent, smaller multiplier for score increase
             if np.round(self.cur_pitch) == 0:
                 self.score += 0.1*len(mono)/fs
+            # if you're correctly singing a note, larger multiplier for score increase
             else:
                 self.score += 5*len(mono)/fs
+                # This is the bonus for hitting each note
                 if not self.gem_status[self.cor_lane][self.gem_idx[self.cor_lane]]:
                     self.score += 2
                     self.gem_status[self.cor_lane][self.gem_idx[self.cor_lane]] = True
+        # If you're singing when you're supposed to be silent, small penalty
         elif self.correct_pitch == 0 or self.cur_pitch == 0:
             self.score -= 0.1*len(mono)/fs
+        # If you're singing the wrong note, you're penalized more based on how far off you are
         else:
             self.score -= 0.5*len(mono) * max(2,(np.round(self.cur_pitch) - self.correct_pitch))/fs
 
+        # max score is just used for the percent calculation, don't worry about it
         self.score = max(0, self.score)
         if self.correct_pitch != 0: 
             self.max_score += 3*len(mono)/fs
