@@ -105,10 +105,10 @@ class HealthBar(InstructionGroup):
     def __init__(self):
         super(HealthBar, self).__init__()
         self.redbar = Line(points=[Window.width*0.85, Window.height*0.93, Window.width*0.95, Window.height*0.93], width=12)
-        self.add(Color(.9,.3,.3,1))
+        self.add(Color(.9,.3,.3,0.5))
         self.add(self.redbar)
         self.greenbar = Line(points=[Window.width*0.85, Window.height*0.93, Window.width*(0.95), Window.height*0.93], width=12)
-        self.add(Color(.4,.8,.4,1))
+        self.add(Color(.1,1.0,.4,0.5))
         self.add(self.greenbar)
 
     def add_healthbar(self, score):
