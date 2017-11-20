@@ -62,7 +62,7 @@ class MainWidget(BaseWidget) :
         # Display user's cursor
         self.cursorcol = Color(1,0,0)
         self.canvas.add(self.cursorcol)
-        self.user = Triangle(points=[NOW_PIXEL-10, 200-10, NOW_PIXEL-10, 200+10, NOW_PIXEL+20, 200])
+        self.user = Triangle(points=[NOW_PIXEL-60, -30, NOW_PIXEL-60, 30, NOW_PIXEL, 0])
         self.canvas.add(self.user)
 
         self.lanes, gem_data, barlineData, self.beatData = SongData().read_data('songs/wdik/Tenor.txt', 'songs/wdik/barlines.txt', 'songs/wdik/beats.txt')
@@ -78,7 +78,7 @@ class MainWidget(BaseWidget) :
         self.scorelabel.text = "[color=000000]Score: 0"
         self.timelabel.text = "Time: %.2f" % self.gametime
         self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]\n[i]12345:[/i] [size=30]gems[/size]"
-        self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f \n correct lane: %f' % (self.player.correct_pitch, self.player.cur_pitch, self.player.cor_lane)
+        # self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f \n correct lane: %f' % (self.player.correct_pitch, self.player.cur_pitch, self.player.cor_lane)
 
         # # Display particle system? 
         # # load up the particle system, set initial emitter point and start it.
@@ -116,6 +116,7 @@ class MainWidget(BaseWidget) :
             return GAME_HEIGHT
         bottom_i = -1
         top_i = len(self.lanes)
+        # find the two lanes that the pitch is between
         for i in range(len(self.lanes)):
             if self.player.cur_pitch < self.lanes[i]:
                 top_i = i
@@ -124,9 +125,11 @@ class MainWidget(BaseWidget) :
             else:
                 bottom_i = i
                 bottom_pitch = self.lanes[i]
-        frac = (self.player.cur_pitch-bottom_pitch)/(top_pitch-bottom_pitch)
+        # snap to the nearest 1/3
+        frac = round((self.player.cur_pitch-bottom_pitch)/(top_pitch-bottom_pitch)*3)/3.
         bottom_pos = lane_to_y_pos(bottom_i, len(self.lanes))
         top_pos = lane_to_y_pos(top_i, len(self.lanes))
+        # return the y position that the cursor should be at
         return bottom_pos + frac*(top_pos-bottom_pos)
 
     def on_update(self) :
@@ -138,7 +141,7 @@ class MainWidget(BaseWidget) :
 
             self.timelabel.text = "Time: %.2f" % self.gametime
             self.scorelabel.text = 'Score: {}'.format(self.player.get_score())
-            self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f' % (self.player.correct_pitch, self.player.cur_pitch)
+            # self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f' % (self.player.correct_pitch, self.player.cur_pitch)
 
             # Only display a streak if there is a current streak > 1
             self.streaklabel.text = '[color=CFB53B]{}X Streak'.format(self.player.get_streak()) if self.player.get_streak() > 1 else ''
@@ -172,7 +175,7 @@ class MainWidget(BaseWidget) :
         y = self.get_cursor_y()
         # Update the user's cursor
         if y < GAME_HEIGHT:
-            self.user.points = [NOW_PIXEL-10, y-10, NOW_PIXEL-10, y+10, NOW_PIXEL+20, y]
+            self.user.points = [NOW_PIXEL-60, y-30, NOW_PIXEL-60, y+30, NOW_PIXEL, y]
 
     def receive_audio(self, frames, num_channels) :
         # handle 1 or 2 channel input.
@@ -290,12 +293,7 @@ class Player(object):
         self.correct_pitch = 0
         self.cur_pitch = 0
         self.cor_lane = 0
-
-        # pass: Silent when supposed to be singing
-        # miss: Singing when supposed to be silent
-        # off: Singing wrong pitch
-        # on: Singing right pitch
-        self.action = 'pass' # pass, miss, off, or on
+        self.cur_gem = False # Tuple (lane, gem_idx)
 
     def get_score(self):
         return self.score/self.max_score
@@ -316,16 +314,15 @@ class Player(object):
 
                 if gem_time < gametime < gem_time + duration:
                     self.correct_pitch = self.lanes[lane]
+                    self.cur_gem = (lane, gem_idx)
 
                 if gametime > gem_time + duration:
                     self.correct_pitch = 0
+                    self.cur_gem = False
                     self.gem_idx[lane] += 1
                     self.max_score += 2
 
-
     def receive_audio(self, mono):
-        self.action = 'pass'
-
         if self.correct_pitch in self.lanes:
             self.cor_lane = self.lanes.index(self.correct_pitch)
         else:
@@ -338,25 +335,34 @@ class Player(object):
         self.cur_pitch = self.pitch.write(mono, conf)
         fs = 44100.
 
-        # Singing correct pitch; Action: on
         if np.round(self.cur_pitch) == self.correct_pitch:
-            self.action = 'on'
             # if you're correctly silent, smaller multiplier for score increase
             if np.round(self.cur_pitch) == 0:
+                action = 'silent'
                 self.score += 0.1*len(mono)/fs
+
             # if you're correctly singing a note, larger multiplier for score increase
             else:
+                action = 'on'
                 self.score += 5*len(mono)/fs
                 # This is the bonus for hitting each note
                 if not self.gem_status[self.cor_lane][self.gem_idx[self.cor_lane]]:
                     self.score += 2
                     self.gem_status[self.cor_lane][self.gem_idx[self.cor_lane]] = True
-        # If you're singing when you're supposed to be silent or silent when supposed to be singing, small penalty
-        elif self.correct_pitch == 0 or self.cur_pitch == 0:
+        
+        # If you're singing when you're supposed to be silent 
+        elif self.correct_pitch == 0:
+            action = 'miss'
             self.score -= 0.1*len(mono)/fs
+
+        # If you're silent when supposed to be singing, small penalty
+        elif self.cur_pitch == 0:
+            action = 'pass'
+            self.score -= 0.1*len(mono)/fs
+
         # If you're singing the wrong note, you're penalized more based on how far off you are
         else:
-            self.action = 'miss'
+            action = 'off'
             self.score -= 0.5*len(mono) * max(2,(np.round(self.cur_pitch) - self.correct_pitch))/fs
 
         # max score is just used for the percent calculation, don't worry about it
@@ -365,5 +371,7 @@ class Player(object):
             self.max_score += 3*len(mono)/fs
         else:
             self.max_score += 0.1*len(mono)/fs
+
+        self.display.animate_action(action, self.cur_gem)
 
 run(MainWidget)
