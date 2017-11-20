@@ -140,7 +140,7 @@ class MainWidget(BaseWidget) :
             self.gametime = curr_gametime
 
             self.timelabel.text = "Time: %.2f" % self.gametime
-            self.scorelabel.text = 'Score: {}'.format(self.player.get_score())
+            self.scorelabel.text = 'Score: {:4.2f}'.format(self.player.get_score())
             # self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f' % (self.player.correct_pitch, self.player.cur_pitch)
 
             # Only display a streak if there is a current streak > 1
