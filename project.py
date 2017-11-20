@@ -62,7 +62,7 @@ class MainWidget(BaseWidget) :
         # Display user's cursor
         self.cursorcol = Color(1,0,0)
         self.canvas.add(self.cursorcol)
-        self.user = Triangle(points=[NOW_PIXEL-10, 200-10, NOW_PIXEL-10, 200+10, NOW_PIXEL+20, 200])
+        self.user = Triangle(points=[NOW_PIXEL-60, -30, NOW_PIXEL-60, 30, NOW_PIXEL, 0])
         self.canvas.add(self.user)
 
         self.lanes, gem_data, barlineData, self.beatData = SongData().read_data('songs/wdik/Tenor.txt', 'songs/wdik/barlines.txt', 'songs/wdik/beats.txt')
@@ -76,7 +76,7 @@ class MainWidget(BaseWidget) :
         self.scorelabel.text = "[color=000000]Score: 0"
         self.timelabel.text = "Time: %.2f" % self.gametime
         self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]\n[i]12345:[/i] [size=30]gems[/size]"
-        self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f \n correct lane: %f' % (self.player.correct_pitch, self.player.cur_pitch, self.player.cor_lane)
+        # self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f \n correct lane: %f' % (self.player.correct_pitch, self.player.cur_pitch, self.player.cor_lane)
 
         # # Display particle system? 
         # # load up the particle system, set initial emitter point and start it.
@@ -114,6 +114,7 @@ class MainWidget(BaseWidget) :
             return GAME_HEIGHT
         bottom_i = -1
         top_i = len(self.lanes)
+        # find the two lanes that the pitch is between
         for i in range(len(self.lanes)):
             if self.player.cur_pitch < self.lanes[i]:
                 top_i = i
@@ -122,9 +123,11 @@ class MainWidget(BaseWidget) :
             else:
                 bottom_i = i
                 bottom_pitch = self.lanes[i]
-        frac = (self.player.cur_pitch-bottom_pitch)/(top_pitch-bottom_pitch)
+        # snap to the nearest 1/3
+        frac = round((self.player.cur_pitch-bottom_pitch)/(top_pitch-bottom_pitch)*3)/3.
         bottom_pos = lane_to_y_pos(bottom_i, len(self.lanes))
         top_pos = lane_to_y_pos(top_i, len(self.lanes))
+        # return the y position that the cursor should be at
         return bottom_pos + frac*(top_pos-bottom_pos)
 
     def on_update(self) :
@@ -136,7 +139,7 @@ class MainWidget(BaseWidget) :
 
             self.timelabel.text = "Time: %.2f" % self.gametime
             self.scorelabel.text = 'Score: {}'.format(self.player.get_score())
-            self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f' % (self.player.correct_pitch, self.player.cur_pitch)
+            # self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f' % (self.player.correct_pitch, self.player.cur_pitch)
 
             # Only display a streak if there is a current streak > 1
             self.streaklabel.text = '[color=CFB53B]{}X Streak'.format(self.player.get_streak()) if self.player.get_streak() > 1 else ''
@@ -169,7 +172,7 @@ class MainWidget(BaseWidget) :
         y = self.get_cursor_y()
         # Update the user's cursor
         if y < GAME_HEIGHT:
-            self.user.points = [NOW_PIXEL-10, y-10, NOW_PIXEL-10, y+10, NOW_PIXEL+20, y]
+            self.user.points = [NOW_PIXEL-60, y-30, NOW_PIXEL-60, y+30, NOW_PIXEL, y]
 
     def receive_audio(self, frames, num_channels) :
         # handle 1 or 2 channel input.
