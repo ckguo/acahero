@@ -60,14 +60,20 @@ class MainWidget(BaseWidget) :
         self.audio = AudioController("songs/wdik/wdik-All.wav", "songs/wdik/wdik-Tenor.wav", receive_audio_func=self.receive_audio)
 
         # Display user's cursor
-        self.cursorcol = Color(1,0,0)
+        # self.cursorcol = Color(1,0,0)
+        self.cursorcol = Color(.6,.6,.6)
         self.canvas.add(self.cursorcol)
         self.user = Triangle(points=[NOW_PIXEL-60, -30, NOW_PIXEL-60, 30, NOW_PIXEL, 0])
+        # self.user = Triangle(points=[NOW_PIXEL-30, -10, NOW_PIXEL-30, 10, NOW_PIXEL+10, 0])
         self.canvas.add(self.user)
+
+        # Add particle system, which is used in BeatMatchDisplay when user sings the correct pitch.
+        self.ps = ParticleSystem('particle/particle.pex')
+        self.add_widget(self.ps)
 
         self.lanes, gem_data, barlineData, self.beatData = SongData().read_data('songs/wdik/Tenor.txt', 'songs/wdik/barlines.txt', 'songs/wdik/beats.txt')
         self.healthbar = HealthBar()
-        self.display = BeatMatchDisplay(self.lanes, gem_data, barlineData, self.beatData)
+        self.display = BeatMatchDisplay(self.lanes, gem_data, barlineData, self.beatData, self.ps)
         self.canvas.add(self.healthbar)
         self.canvas.add(self.display)
 
@@ -79,14 +85,6 @@ class MainWidget(BaseWidget) :
         self.timelabel.text = "Time: %.2f" % self.gametime
         self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]\n[i]12345:[/i] [size=30]gems[/size]"
         # self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f \n correct lane: %f' % (self.player.correct_pitch, self.player.cur_pitch, self.player.cor_lane)
-
-        # # Display particle system? 
-        # # load up the particle system, set initial emitter point and start it.
-        # self.ps = ParticleSystem('particle/particle.pex')
-        # self.ps.emitter_x = NOW_PIXEL
-        # self.ps.emitter_y = 0.0
-        # self.ps.start()
-        # self.add_widget(self.ps)
 
         self.display.draw_objects()
 
@@ -105,7 +103,7 @@ class MainWidget(BaseWidget) :
     def endgame(self):
         self.toggle()
         self.timelabel.text = "Game Ended"
-        self.streaklabel.text = '[color=CFB53B]Final Score: {}'.format(self.player.get_score())
+        self.streaklabel.text = 'Final Percentage: {}%'.format(round(self.player.get_score()*100.))
 
     def get_cursor_y(self):
         bottom_pitch = self.lanes[-2] - 12
@@ -164,11 +162,17 @@ class MainWidget(BaseWidget) :
                 self.endgame()
         
         if self.player.cur_pitch == 0:
-            self.cursorcol.r = 1
-            self.cursorcol.g = 0
+            # self.cursorcol.r = 1
+            # self.cursorcol.g = 0
+            self.cursorcol.r = 0.6
+            self.cursorcol.g = 0.6
+            self.cursorcol.b = 0.6
         else:
+            # self.cursorcol.r = 0
+            # self.cursorcol.g = 1
             self.cursorcol.r = 0
-            self.cursorcol.g = 1
+            self.cursorcol.g = 0
+            self.cursorcol.b = 0
             # lane = self.lanes.index(np.round(self.player.cur_pitch))
             # y = lane_to_y_pos(lane, self.num_lanes)
         # self.ps.emitter_y = y
@@ -176,6 +180,7 @@ class MainWidget(BaseWidget) :
         # Update the user's cursor
         if y < GAME_HEIGHT:
             self.user.points = [NOW_PIXEL-60, y-30, NOW_PIXEL-60, y+30, NOW_PIXEL, y]
+            # self.user.points = [NOW_PIXEL-30, y-10, NOW_PIXEL-30, y+10, NOW_PIXEL+10, y]
 
     def receive_audio(self, frames, num_channels) :
         # handle 1 or 2 channel input.
