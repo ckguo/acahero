@@ -1,10 +1,5 @@
 #pset6.py
 
-# Silent when supposed to be singing
-# Singing when supposed to be silent
-# Singing wrong pitch
-# Singing right pitch
-
 import sys
 sys.path.append('..')
 from common.core import *
@@ -293,6 +288,12 @@ class Player(object):
         self.cur_pitch = 0
         self.cor_lane = 0
 
+        # pass: Silent when supposed to be singing
+        # miss: Singing when supposed to be silent
+        # off: Singing wrong pitch
+        # on: Singing right pitch
+        self.action = 'pass' # pass, miss, off, or on
+
     def get_score(self):
         return self.score/self.max_score
 
@@ -320,6 +321,8 @@ class Player(object):
 
 
     def receive_audio(self, mono):
+        self.action = 'pass'
+
         if self.correct_pitch in self.lanes:
             self.cor_lane = self.lanes.index(self.correct_pitch)
         else:
@@ -331,7 +334,10 @@ class Player(object):
             conf = 0.8
         self.cur_pitch = self.pitch.write(mono, conf)
         fs = 44100.
+
+        # Singing correct pitch; Action: on
         if np.round(self.cur_pitch) == self.correct_pitch:
+            self.action = 'on'
             if np.round(self.cur_pitch) == 0:
                 self.score += 0.1*len(mono)/fs
             else:
@@ -339,9 +345,14 @@ class Player(object):
                 if not self.gem_status[self.cor_lane][self.gem_idx[self.cor_lane]]:
                     self.score += 2
                     self.gem_status[self.cor_lane][self.gem_idx[self.cor_lane]] = True
+        
+        # Silent when supposed to be silent 
         elif self.correct_pitch == 0 or self.cur_pitch == 0:
             self.score -= 0.1*len(mono)/fs
+
+        # Silent when supposed to be singing; Action: miss
         else:
+            self.action = 'miss'
             self.score -= 0.5*len(mono) * max(2,(np.round(self.cur_pitch) - self.correct_pitch))/fs
 
         self.score = max(0, self.score)
