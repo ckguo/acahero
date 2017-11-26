@@ -33,7 +33,7 @@ class GemDisplay(InstructionGroup):
     def draw_gem(self):
         if self.lyric:
             # Draw lyric
-            self.add(Color(256, 256, 256))
+            self.add(Color(0, 0, 0))
             texture = CoreImage('./lyrics/' + self.lyric + '.png').texture
             self.text = Rectangle( pos=(self.pos[0]+10, self.pos[1]+10), size=(100, 50), texture=texture )
             self.add(self.text)
@@ -129,12 +129,14 @@ class BeatMatchDisplay(InstructionGroup):
         self.num_lanes = len(lanes)
 
         # Colors corresponding to each lane
-        self.colors = [Color(1,.5,0,.4)]*self.num_lanes
+        self.colors = [Color(0,0,0,.4)]*self.num_lanes
 
         self.gem_data = gem_data
         self.barline_data = barline_data
         self.beat_data = beat_data
-        self.action_colors = {} # Dictionary that stores the current color of the gems that passed, keyed by lane.
+
+        # Dictionary that stores gem object, and the current color of the gems.
+        self.gems, self.action_colors = self.initialize_gems()
 
         self.add_header()
         self.add_nowbar()
@@ -147,6 +149,18 @@ class BeatMatchDisplay(InstructionGroup):
 
         self.paused = True
 
+    def initialize_gems(self):
+        # Pass Color: Gray Color(.8,.8,.8)
+        action_colors = {}
+        gems = {}
+
+        for lane in self.gem_data:
+            num_gems = len(self.gem_data[lane])
+            action_colors[lane] = [[Color(0.,0.,0.), 0] for i in range(num_gems)]
+            gems[lane] = [0]*num_gems
+
+        return gems, action_colors
+
     def draw_objects(self):
         self.trans = Translate()
         self.trans.x = Window.width + NOW_PIXEL
@@ -158,8 +172,9 @@ class BeatMatchDisplay(InstructionGroup):
             self.draw_bar(bar*RATE, 3, Color(0, 0, 0))
         
         for lane in range(self.num_lanes):
-            for gem_time, duration, lyric in self.gem_data[lane]:
-                self.draw_gem(gem_time*RATE, lane, duration, lyric)
+            for idx, gem in enumerate(self.gem_data[lane]):
+                gem_time, duration, lyric = gem
+                self.draw_gem(idx, gem_time*RATE, lane, duration, lyric)
 
     def toggle(self):
         self.paused = not self.paused 
@@ -187,7 +202,7 @@ class BeatMatchDisplay(InstructionGroup):
         barline = Barline(x_pos, width, color)
         self.add(barline)
 
-    def draw_gem(self, x_pos, lane, duration, lyric):
+    def draw_gem(self, idx, x_pos, lane, duration, lyric):
         y = lane_to_y_pos(lane, self.num_lanes)
         length = RATE * duration 
 
@@ -210,58 +225,36 @@ class BeatMatchDisplay(InstructionGroup):
         y = lane_to_y_pos(lane, self.num_lanes)
         length = (NOW_PIXEL+10) - (x + self.trans.x)
         
-        color = False
-        if lane not in self.action_colors:
-            self.action_colors[lane] = {}
-
-        if gem_idx in self.action_colors[lane]:
-            color = self.action_colors[lane][gem_idx] 
-            
-            if action == 'pass':
-                color.r = (color.r+0.8)/2
-                color.g = (color.g+0.8)/2
-                color.b = (color.b+0.8)/2
-            elif action == 'on':
-                color.r = (color.r+0.)/2
-                color.g = (color.g+0.8)/2
-                color.b = (color.b+0.)/2
-            elif action == 'off':
-                color.r = (color.r+0.8)/2
-                color.g = (color.g+0)/2
-                color.b = (color.b+0.)/2
-
-        else:
-            if action == 'pass':
-                color = Color(.8,.8,.8)
-            elif action == 'on':
-                color = Color(0.,.8,0.)
-            elif action == 'off':
-                color = Color(0.8,0.,0.)
+        self.action_colors[lane][gem_idx][1] += 1
+        color, denom = self.action_colors[lane][gem_idx]
         
-            self.action_colors[lane][gem_idx] = color
+        if action == 'pass':
+            color.r = (color.r+0.1)/denom
+            color.g = (color.g+0.)/denom
+            color.b = (color.b+0.)/denom
+        elif action == 'on':
+            color.r = (color.r+0.)/denom
+            color.g = (color.g+0.1)/denom
+            color.b = (color.b+0.)/denom
+        elif action == 'off':
+            color.r = (color.r+0.1)/denom
+            color.g = (color.g+0)/denom
+            color.b = (color.b+0.)/denom
 
-        if color:
-            gem = GemDisplay(pos=(x, y), color=color, length=length, lyric=False)
-            self.add(gem)
+        # Normalize color to be within 0-1
+        max_val = max(color.r, color.g, color.b)
+        color.r = color.r/max_val
+        color.g = color.g/max_val
+        color.b = color.b/max_val
 
-    # called by Player. Causes the right thing to happen
-    def gem_hit(self, gem_idx, lane):
-        gem = self.gems[lane][gem_idx]
+        # Remove gem from canvas
+        prev_gem = self.gems[lane][gem_idx]
+        if prev_gem: self.remove(prev_gem)
 
-        # Add pop animation.
-        self.pop = Pop(gem.pos, gem.color)
-        self.pops.add(self.pop)
-
-        # Remove from canvas and gems list
-        self.remove(gem) 
-        self.gems[lane].remove(gem)
-        
-    # called by Player. Causes the right thing to happen
-    def gem_pass(self, lane):
-        # Assume that the first gem in the lane just passed
-        gem_idx = 0
-        gem = self.gems[lane][gem_idx]
-        gem.on_pass()
+        # Redraw gem
+        gem = GemDisplay(pos=(x, y), color=color, length=length, lyric=lyric)
+        self.gems[lane][gem_idx] = gem
+        self.add(gem)
 
     # call every frame to make gems and barlines flow down the screen
     def on_update(self, gametime, dt) :
