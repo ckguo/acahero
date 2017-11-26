@@ -57,6 +57,9 @@ class MainWidget(BaseWidget) :
         self.gametime = -SCREEN_TIME
         self.gameon = False
 
+        self.old_cursor_y = 1
+        self.filter_rate = 0.4
+
         self.audio = AudioController("songs/wdik/wdik-All.wav", "songs/wdik/wdik-Tenor.wav", receive_audio_func=self.receive_audio)
 
         # Display user's cursor
@@ -124,7 +127,7 @@ class MainWidget(BaseWidget) :
                 bottom_i = i
                 bottom_pitch = self.lanes[i]
         # snap to the nearest 1/3
-        frac = round((self.player.cur_pitch-bottom_pitch)/(top_pitch-bottom_pitch)*3)/3.
+        frac = round((self.player.cur_pitch-bottom_pitch)/(top_pitch-bottom_pitch)*5)/5.
         bottom_pos = lane_to_y_pos(bottom_i, len(self.lanes))
         top_pos = lane_to_y_pos(top_i, len(self.lanes))
         # return the y position that the cursor should be at
@@ -179,7 +182,9 @@ class MainWidget(BaseWidget) :
         y = self.get_cursor_y()
         # Update the user's cursor
         if y < GAME_HEIGHT:
-            self.user.points = [NOW_PIXEL-60, y-30, NOW_PIXEL-60, y+30, NOW_PIXEL, y]
+            cursor_y = self.filter_rate*y + (1-self.filter_rate)*self.old_cursor_y
+            self.old_cursor_y = cursor_y
+            self.user.points = [NOW_PIXEL-60, cursor_y-30, NOW_PIXEL-60, cursor_y+30, NOW_PIXEL, cursor_y]
             # self.user.points = [NOW_PIXEL-30, y-10, NOW_PIXEL-30, y+10, NOW_PIXEL+10, y]
 
     def receive_audio(self, frames, num_channels) :
@@ -216,8 +221,8 @@ class AudioController(object):
         self.wave_gen_solo.pause()
 
     def start_music(self):
-        self.wave_gen_solo.set_gain(1.)
-        self.wave_gen_bg.set_gain(0.5)
+        self.wave_gen_solo.set_gain(0.8)
+        self.wave_gen_bg.set_gain(0.7)
 
         self.mixer.add(self.wave_gen_solo)
         self.mixer.add(self.wave_gen_bg)
@@ -300,6 +305,8 @@ class Player(object):
         self.cor_lane = 0
         self.cur_gem = False # Tuple (lane, gem_idx)
 
+        self.time = 0
+
     def get_score(self):
         return min(self.score/self.max_score, 1.0)
 
@@ -310,6 +317,7 @@ class Player(object):
         return self.longest_streak
 
     def on_update(self, gametime):
+        self.time = gametime
         # find the current gem (if there is one) and set self.correct_pitch
         for lane in range(self.num_lanes):
             gem_idx = self.gem_idx[lane]
