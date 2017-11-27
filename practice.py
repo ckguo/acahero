@@ -27,7 +27,6 @@ from functools import partial
 
 from pitch_detector import *
 from display import *
-from song_data import SongData
 
 Config.set('graphics', 'fullscreen', 'auto')
 Config.write()
@@ -35,7 +34,7 @@ Config.write()
 SCREEN_TIME = 10.0 # Amount of time 
 RATE = Window.width/SCREEN_TIME
 
-class MainWidget(BaseWidget) :
+class MainWidgetPractice(BaseWidget) :
     def __init__(self):
         super(MainWidget, self).__init__()
         # Set terminal color to white
@@ -71,7 +70,6 @@ class MainWidget(BaseWidget) :
         self.cursorcol = Color(.6,.6,.6)
         self.canvas.add(self.cursorcol)
         self.user = Triangle(points=[NOW_PIXEL-60, -30, NOW_PIXEL-60, 30, NOW_PIXEL, 0])
-        # self.user = Triangle(points=[NOW_PIXEL-30, -10, NOW_PIXEL-30, 10, NOW_PIXEL+10, 0])
         self.canvas.add(self.user)
 
         # Add particle system, which is used in BeatMatchDisplay when user sings the correct pitch.
@@ -172,20 +170,14 @@ class MainWidget(BaseWidget) :
                 self.endgame()
         
         if self.player.cur_pitch == 0:
-            # self.cursorcol.r = 1
-            # self.cursorcol.g = 0
             self.cursorcol.r = 0.6
             self.cursorcol.g = 0.6
             self.cursorcol.b = 0.6
         else:
-            # self.cursorcol.r = 0
-            # self.cursorcol.g = 1
             self.cursorcol.r = 0
             self.cursorcol.g = 0
             self.cursorcol.b = 0
-            # lane = self.lanes.index(np.round(self.player.cur_pitch))
-            # y = lane_to_y_pos(lane, self.num_lanes)
-        # self.ps.emitter_y = y
+
         y = self.get_cursor_y()
         # Update the user's cursor
         if y < GAME_HEIGHT:
@@ -215,7 +207,7 @@ class MainWidget(BaseWidget) :
 # creates the Audio control
 # creates a song and loads it with solo and bg audio tracks
 # creates snippets for audio sound fx
-class AudioController(object):
+class PhraseAudioController(object):
     def __init__(self, bg_path, solo_path, receive_audio_func):
         super(AudioController, self).__init__()
         self.audio = Audio(2, input_func=receive_audio_func)
@@ -246,17 +238,56 @@ class AudioController(object):
         if gametime >= 0.:
             self.start_music()
 
+def create_phrase_song_data(song_data):
+    phrases = []
+    barlines = song_data.barline_data
+    beat_ind = 0
+    gem_ind = [0]*len(song_data.lanes)
+    start_time = 0
+    # phrase_times = barlines[::4]
 
+    for i in range(4, len(barlines), 4):
+        end_time = barlines[i]
+
+        for j in range(beat_ind, len(song_data.beat_data)):
+            if song_data.beat_data[j] > end_time:
+                break
+        phrase_beats = song_data.beat_data[beat_ind:j]
+        beat_ind = j
+
+        phrase_gems = {}
+        for lane in range(len(song_data.lanes)):
+            for j in range(gem_ind[lane], len(song_data.gem_data[lane])):
+                if song_data.gem_data[lane][j][0] > end_time:
+                    break
+            phrase_gems[lane] = song_data.gem_data[gem_ind[lane]:j]
+            gem_ind[lane] = j
+
+        phrase_barlines = barlines[i-4:i+1]
+
+        phrase_data = PhraseSongData(song_data.lanes, phrase_barlines, phrase_beats, phrase_gems, start_time)
+        phrases.append(phrase_data)
+        start_time = end_time
+        
+    return phrases
+
+class PhraseSongData(object):
+    def __init__(self, lanes, barlines, beats, gems, start_time):
+        self.lanes = lanes
+        self.gem_data = gems
+        self.barline_data = barlines
+        self.beat_data = beats
+        self.phrase_num = phrase_num
 
 # Handles game logic and keeps score.
 # Controls the display and the audio
-class Player(object):
-    def __init__(self, song_data, display, audio_ctrl, pitch_detector):
+class PhrasePlayer(object):
+    def __init__(self, phrase_song_data, display, audio_ctrl, pitch_detector):
         super(Player, self).__init__()
         self.lanes = song_data.lanes
         self.num_lanes = len(self.lanes)
         self.display = display
-        # self.audio = audio_ctrl
+        self.audio = audio_ctrl
 
         self.slop_window = 0.1
         self.gem_data = song_data.gem_data

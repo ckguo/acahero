@@ -12,8 +12,6 @@ from common.kivyparticle import ParticleSystem
 import numpy as np
 
 NOW_PIXEL = Window.width*.07 # Pixel of now bar
-SCREEN_TIME = 10.0 # Amount of time 
-RATE = Window.width/SCREEN_TIME
 GAME_HEIGHT = Window.height*.8 # Top of game screen
 
 def lane_to_y_pos(lane, num_lanes):
@@ -123,17 +121,17 @@ class HealthBar(InstructionGroup):
 
 # Displays and controls all game elements: Nowbar, Buttons, BarLines, Gems.
 class BeatMatchDisplay(InstructionGroup):
-    def __init__(self, lanes, gem_data, barline_data, beat_data, ps):
+    def __init__(self, song_data, ps, rate):
         super(BeatMatchDisplay, self).__init__()
-        self.lanes = lanes
-        self.num_lanes = len(lanes)
+
+        self.gem_data = song_data.gem_data
+        self.barline_data = song_data.barline_data
+        self.beat_data = song_data.beat_data
+        self.lanes = song_data.lanes
+        self.num_lanes = len(self.lanes)
 
         # Colors corresponding to each lane
         self.colors = [Color(0,0,0,.4)]*self.num_lanes
-
-        self.gem_data = gem_data
-        self.barline_data = barline_data
-        self.beat_data = beat_data
 
         # Dictionary that stores gem object, and the current color of the gems.
         self.gems, self.action_colors = self.initialize_gems()
@@ -146,6 +144,7 @@ class BeatMatchDisplay(InstructionGroup):
         self.add(self.pops)
 
         self.ps = ps
+        self.rate = rate
 
         self.paused = True
 
@@ -167,14 +166,14 @@ class BeatMatchDisplay(InstructionGroup):
         self.add(self.trans)
 
         for beat in self.beat_data:
-            self.draw_bar(beat*RATE, 1.5, Color(0, 0, 0.7, mode='hsv'))
+            self.draw_bar(beat*self.rate, 1.5, Color(0, 0, 0.7, mode='hsv'))
         for bar in self.barline_data:
-            self.draw_bar(bar*RATE, 3, Color(0, 0, 0))
+            self.draw_bar(bar*self.rate, 3, Color(0, 0, 0))
         
         for lane in range(self.num_lanes):
             for idx, gem in enumerate(self.gem_data[lane]):
                 gem_time, duration, lyric = gem
-                self.draw_gem(idx, gem_time*RATE, lane, duration, lyric)
+                self.draw_gem(idx, gem_time*self.rate, lane, duration, lyric)
 
     def toggle(self):
         self.paused = not self.paused 
@@ -204,7 +203,7 @@ class BeatMatchDisplay(InstructionGroup):
 
     def draw_gem(self, idx, x_pos, lane, duration, lyric):
         y = lane_to_y_pos(lane, self.num_lanes)
-        length = RATE * duration 
+        length = self.rate * duration 
 
         gem = GemDisplay(pos=(x_pos, y), color=self.colors[lane], length=length, lyric=lyric)
         self.add(gem)
@@ -221,7 +220,7 @@ class BeatMatchDisplay(InstructionGroup):
 
         lane, gem_idx = current_gem
         gem_time, duration, lyric = self.gem_data[lane][gem_idx]
-        x = gem_time*RATE
+        x = gem_time*self.rate
         y = lane_to_y_pos(lane, self.num_lanes)
         length = (NOW_PIXEL+10) - (x + self.trans.x)
         
@@ -258,6 +257,5 @@ class BeatMatchDisplay(InstructionGroup):
 
     # call every frame to make gems and barlines flow down the screen
     def on_update(self, gametime, dt) :
-        # self.trans.x = NOW_PIXEL - gametime*RATE
-        self.trans.x = -gametime*RATE + NOW_PIXEL
+        self.trans.x = -gametime*self.rate + NOW_PIXEL
 
