@@ -36,8 +36,8 @@ SCREEN_TIME = 10.0 # Amount of time
 RATE = Window.width/SCREEN_TIME
 
 class MainWidget(BaseWidget) :
-    def __init__(self):
-        super(MainWidget, self).__init__()
+    def __init__(self, **kwargs):
+        super(MainWidget, self).__init__(**kwargs)
         # Set terminal color to white
         Window.clearcolor = (.8, .8, .8, .8) 
 
@@ -357,4 +357,5 @@ class Player(object):
 
         self.display.animate_action(action, self.cur_gem)
 
-run(MainWidget)
+if __name__ == '__main__':  
+    run(MainWidget)
