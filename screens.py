@@ -1,57 +1,28 @@
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
+from project import *
 
-# Create both screens. Please note the root.manager.current: this is how
-# you can control the ScreenManager from kv. Each screen has by default a
-# property manager that gives you the instance of the ScreenManager used.
-Builder.load_string("""
-<MenuScreen>:
-    BoxLayout:
-    	orientation: 'vertical'
-    	spacing: 30
-    	padding: [50,50,50,50]
 
-        Button:
-            text: 'Practice Mode'
-            on_press: 
-            	root.manager.transition.direction = 'left'
-            	root.manager.current = 'settings'
-        Button:
-            text: 'Play Mode'
-            on_press: 
-            	root.manager.transition.direction = 'left'
-            	root.manager.current = 'settings'
-        Button:
-            text: 'Settings'
-
-<SettingsScreen>:
-    BoxLayout:
-        Button:
-            text: 'My settings button'
-        Button:
-            text: 'Back to menu'
-            on_press: 
-            	root.manager.transition.direction = 'right'
-            	root.manager.current = 'menu'
-""")
-
-# Declare both screens
 class MenuScreen(Screen):
+    pass
+
+class PerformScreen(Screen):
     pass
 
 class SettingsScreen(Screen):
     pass
 
+class ScreenManagement(ScreenManager):
+    pass
+    
 # Create the screen manager
-sm = ScreenManager()
-sm.add_widget(MenuScreen(name='menu'))
-sm.add_widget(SettingsScreen(name='settings'))
+presentation = Builder.load_file("screen_manager.kv")
 
-class TestApp(App):
-
+class MainApp(App):
+    
     def build(self):
-        return sm
+        return presentation
 
-if __name__ == '__main__':
-    TestApp().run()
+if __name__ == "__main__":
+    MainApp().run()

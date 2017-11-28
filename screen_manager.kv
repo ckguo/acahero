@@ -1,0 +1,68 @@
+#: import FadeTransition kivy.uix.screenmanager.FadeTransition
+
+ScreenManagement:
+    ## transition: FadeTransition()
+    
+    MenuScreen:
+    PerformScreen:
+    SettingsScreen:
+    
+<MenuScreen>:
+    name: "menu"
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 30
+        padding: [700,50,50,150]
+        canvas.before:
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                source: "spotlight.png"
+
+        Label:
+            text: "[color=FFFFFF][b]ACAHERO[/b]"
+            font_size: '75sp'
+            halign: 'center'
+            valign: 'bottom'
+            markup: True
+
+        Button:
+            background_color: (.9,.9,.9,.5)
+            font_size: '30sp'
+            text: 'Practice Mode'
+            on_press: 
+                root.manager.transition.direction = 'left'
+                root.manager.current = 'settings'
+        Button:
+            background_color: (.7,.7,.7,.5)
+            font_size: '30sp'
+            text: 'Perform Mode'
+            on_press: 
+                root.manager.transition.direction = 'left'
+                root.manager.current = 'perform'
+        Button:
+            background_color: (.5,.5,.5,.5)
+            font_size: '30sp'
+            text: 'Settings'
+            on_press: 
+                root.manager.transition.direction = 'down'
+                root.manager.current = 'settings'
+
+<PerformScreen>:
+    name: "perform"
+
+    FloatLayout:
+        MainWidget
+        
+<SettingsScreen>:
+    name: "settings"
+
+    BoxLayout:
+        Button:
+            text: 'My settings button'
+        Button:
+            text: 'Back to menu'
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
