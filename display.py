@@ -256,6 +256,6 @@ class BeatMatchDisplay(InstructionGroup):
         self.add(gem)
 
     # call every frame to make gems and barlines flow down the screen
-    def on_update(self, gametime, dt) :
+    def on_update(self, gametime) :
         self.trans.x = -gametime*self.rate + NOW_PIXEL
 
