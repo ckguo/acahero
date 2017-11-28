@@ -144,7 +144,6 @@ class MainWidget(BaseWidget) :
         # Only update when gameplay is on
         if self.gameon:
             curr_gametime = self.clock.get_time() - SCREEN_TIME
-            dt = curr_gametime - self.gametime
             self.gametime = curr_gametime
 
             self.timelabel.text = "Time: %.2f" % self.gametime
@@ -155,7 +154,7 @@ class MainWidget(BaseWidget) :
             self.streaklabel.text = '[color=CFB53B]{}X Streak'.format(self.player.get_streak()) if self.player.get_streak() > 1 else ''
 
             self.audio.on_update(self.gametime)
-            self.display.on_update(self.gametime, dt)
+            self.display.on_update(self.gametime)
             self.player.on_update(self.gametime)
             self.healthbar.on_update(self.player.get_score())
 
