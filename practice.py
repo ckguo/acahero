@@ -32,7 +32,7 @@ from song_data import SongData
 Config.set('graphics', 'fullscreen', 'auto')
 Config.write()
 
-SCREEN_TIME = 4.0 # Amount of time 
+SCREEN_TIME = 3.0 # Amount of time 
 RATE = Window.width/SCREEN_TIME
 
 class MainWidgetPractice(BaseWidget) :
@@ -53,8 +53,8 @@ class MainWidgetPractice(BaseWidget) :
 		self.name = name_label()
 		self.add_widget(self.name)
 
-		self.pitchlabel = center_label()
-		self.add_widget(self.pitchlabel)
+		self.next_phrase_label = center_label()
+		self.add_widget(self.next_phrase_label)
 
 		self.clock = Clock()
 		self.clock.stop()
@@ -65,7 +65,6 @@ class MainWidgetPractice(BaseWidget) :
 		self.filter_rate = 0.4
 
 		# Display user's cursor
-		# self.cursorcol = Color(1,0,0)
 		self.cursorcol = Color(.6,.6,.6)
 		self.canvas.add(self.cursorcol)
 		self.user = Triangle(points=[NOW_PIXEL-60, -30, NOW_PIXEL-60, 30, NOW_PIXEL, 0])
@@ -85,6 +84,7 @@ class MainWidgetPractice(BaseWidget) :
 
 		self.phrases = create_phrase_song_data(song_data)
 		self.phrase_num = 0
+		self.passing = True
 
 		current_phrase = self.phrases[self.phrase_num]
 		self.end_time = current_phrase.end_time
@@ -105,7 +105,6 @@ class MainWidgetPractice(BaseWidget) :
 		self.scorelabel.text = "[color=000000]Score: 0"
 		self.timelabel.text = "Time: %.2f" % self.gametime
 		self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]\n[i]12345:[/i] [size=30]gems[/size]"
-		# self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f \n correct lane: %f' % (self.player.correct_pitch, self.player.cur_pitch, self.player.cor_lane)
 
 		self.display.draw_objects()
 
@@ -124,7 +123,10 @@ class MainWidgetPractice(BaseWidget) :
 	def endgame(self):
 		self.toggle()
 		self.timelabel.text = "Game Ended"
-		self.streaklabel.text = 'Final Percentage: {}%'.format(round(self.player.get_score()*100.))
+		if self.passing:
+			self.streaklabel.text = 'Congrats! You passed Practice Mode!'
+		else:
+			self.streaklabel.text = 'Good job on completing Practice Mode!\nPlease try again until you pass every phrase.'
 
 	def get_cursor_y(self):
 		bottom_pitch = self.lanes[-2] - 12
@@ -151,6 +153,27 @@ class MainWidgetPractice(BaseWidget) :
 		# return the y position that the cursor should be at
 		return bottom_pos + frac*(top_pos-bottom_pos)
 
+	def goto_next_phrase(self):
+		self.clock = Clock()
+		self.phrase_num += 1
+		if self.phrase_num == len(self.phrases):
+			self.endgame()
+			return
+		phrase_data = self.phrases[self.phrase_num]
+
+		self.canvas.remove(self.display)
+		self.display = BeatMatchDisplay(phrase_data, self.ps, RATE)
+		self.canvas.add(self.display)
+
+		self.audio.toggle()
+		self.audio = PhraseAudioController(self.bg_filename, self.part_filename, self.receive_audio, phrase_data.start_time, phrase_data.phrase_length)
+
+		self.player = PhrasePlayer(phrase_data, self.display, self.audio, PitchDetector())
+		self.display.draw_objects()
+		self.audio.toggle()
+		self.toggle()
+
+
 	def on_update(self) :
 		# Only update when gameplay is on
 		if self.gameon:
@@ -159,28 +182,23 @@ class MainWidgetPractice(BaseWidget) :
 
 			self.timelabel.text = "Time: %.2f" % self.gametime
 			self.scorelabel.text = 'Score: {:4.2f}'.format(self.player.get_score())
-			# self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f' % (self.player.correct_pitch, self.player.cur_pitch)
 
 			# Only display a streak if there is a current streak > 1
-			self.streaklabel.text = '[color=CFB53B]{}X Streak'.format(self.player.get_streak()) if self.player.get_streak() > 1 else ''
+			self.streaklabel.text = ''
+			self.next_phrase_label.text = ''
 
 			flag = self.player.on_update(self.gametime)
-			if flag == False:
-				self.clock = Clock()
-				self.phrase_num += 1
-				phrase_data = self.phrases[self.phrase_num]
 
-				self.canvas.remove(self.display)
-				self.display = BeatMatchDisplay(phrase_data, self.ps, RATE)
-				self.canvas.add(self.display)
-
-				self.audio.toggle()
-				self.audio = PhraseAudioController(self.bg_filename, self.part_filename, self.receive_audio, phrase_data.start_time, phrase_data.phrase_length)
-
-				self.player = PhrasePlayer(phrase_data, self.display, self.audio, PitchDetector())
-				self.display.draw_objects()
-				self.audio.toggle()
-				self.toggle()
+			if flag == False or flag == True:
+				if flag == False:
+					self.passing = False
+				self.goto_next_phrase()
+				if self.phrase_num == len(self.phrases):
+					return
+				if flag == True:
+					self.next_phrase_label.text = "Congratulations!\nHere's the next phrase :)"
+				else:
+					self.next_phrase_label.text = "Try again later!\nHere's the next phrase :)"
 
 			self.healthbar.on_update(self.player.get_score())
 
@@ -333,6 +351,7 @@ class PhrasePlayer(object):
 	def __init__(self, phrase_song_data, display, audio_ctrl, pitch_detector):
 		super(PhrasePlayer, self).__init__()
 		self.phrase_song_data = phrase_song_data
+		self.phrase_length = phrase_song_data.phrase_length
 
 		self.lanes = phrase_song_data.lanes
 		self.num_lanes = len(self.lanes)
@@ -345,8 +364,7 @@ class PhrasePlayer(object):
 		self.gem_status = [[False]*len(self.gem_data[lane]) for lane in self.gem_data]
 		self.score = 10
 		self.max_score = 10
-		self.streak = 0
-		self.longest_streak = self.streak
+		self.should_reset_score = False
 
 		self.gem_threshold = 0.25
 
@@ -357,20 +375,38 @@ class PhrasePlayer(object):
 		self.cur_gem = False # Tuple (lane, gem_idx)
 
 		self.time = 0
+		self.passed = False
+		self.score_threshold = 0.6
 
 	def get_score(self):
 		return min(self.score/self.max_score, 1.0)
 
-	def get_streak(self):
-		return self.streak
-
-	def get_longest_streak(self):
-		return self.longest_streak
+	def reset_score(self):
+		self.score = 10
+		self.max_score = 10
 
 	def on_update(self, gametime):
 		self.time = gametime
-		if gametime > self.phrase_song_data.end_time:
+
+		# return False if gametime is too long
+		if gametime > self.phrase_song_data.end_time + 0.5:
 			return False
+
+		time_in_phrase = self.time % self.phrase_length
+
+		# if you are near the beginning of a phrase, return True if you had passed the phrase
+		# reset the score at the start of a phrase
+		if time_in_phrase < 0.05:
+			if self.passed:
+				return True
+			self.reset_score()
+			self.should_reset_score = False
+
+		# if you are near the end of the phrase, evaluate whether or not you passed the phrase
+		if self.phrase_length - time_in_phrase < 0.05 and self.time > 0:
+			self.should_reset_score = True
+			if self.get_score() > self.score_threshold:
+				self.passed = True
 
 		self.audio.on_update(self.time)
 		self.display.on_update(self.time)
@@ -391,7 +427,7 @@ class PhrasePlayer(object):
 					self.cur_gem = False
 					self.gem_idx[lane] += 1
 					self.max_score += 2
-		return True
+		# return True
 
 	def receive_audio(self, mono):
 		if self.correct_pitch in self.lanes:
@@ -444,5 +480,6 @@ class PhrasePlayer(object):
 			self.max_score += 0.1*len(mono)/fs
 
 		self.display.animate_action(action, self.cur_gem)
+
 
 run(MainWidgetPractice)
