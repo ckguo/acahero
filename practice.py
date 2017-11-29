@@ -104,14 +104,14 @@ class MainWidgetPractice(BaseWidget) :
 		# self.name.text = "[color=000000][b]ACAHERO[/b]"
 		self.scorelabel.text = "[color=000000]Score: 0"
 		self.timelabel.text = "Time: %.2f" % self.gametime
-		self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]"
+		# self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]"
 
 		self.display.draw_objects()
 
-	def on_key_down(self, keycode, modifiers):
-		# play / pause toggle
-		if keycode[1] == 'p':
-			self.toggle()
+	# def on_key_down(self, keycode, modifiers):
+	# 	# play / pause toggle
+	# 	if keycode[1] == 'p':
+	# 		self.toggle()
 
 	def toggle(self):
 		self.gameon = not self.gameon
