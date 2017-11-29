@@ -17,6 +17,7 @@ from kivy.graphics import PushMatrix, PopMatrix, Translate, Scale, Rotate
 from kivy.clock import Clock as kivyClock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
+# from kivy.uix.button import Button
 # from common.kivyparticle import ParticleSystem
 from kivy.config import Config
 
@@ -90,10 +91,11 @@ class MainWidget(BaseWidget) :
         self.player = Player(song_data, self.display, self.audio, PitchDetector())
 
         # Display screen when starting game. 
-        self.name.text = "[color=000000][b]ACAHERO[/b]"
+        
+        # self.name.text = "[color=000000][b]ACAHERO[/b]"
         self.scorelabel.text = "[color=000000]Score: 0"
         self.timelabel.text = "Time: %.2f" % self.gametime
-        self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]\n[i]12345:[/i] [size=30]gems[/size]"
+        self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]"
         # self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f \n correct lane: %f' % (self.player.correct_pitch, self.player.cur_pitch, self.player.cor_lane)
 
         self.display.draw_objects()

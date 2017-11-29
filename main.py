@@ -1,8 +1,8 @@
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
-from project import *
-from practice import *
+from project import MainWidget
+from practice import MainWidgetPractice
 
 class MenuScreen(Screen):
     pass

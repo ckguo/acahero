@@ -101,10 +101,10 @@ class MainWidgetPractice(BaseWidget) :
 		self.player = PhrasePlayer(self.phrases[0], self.display, self.audio, PitchDetector())
 
 		# Display screen when starting game. 
-		self.name.text = "[color=000000][b]ACAHERO[/b]"
+		# self.name.text = "[color=000000][b]ACAHERO[/b]"
 		self.scorelabel.text = "[color=000000]Score: 0"
 		self.timelabel.text = "Time: %.2f" % self.gametime
-		self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]\n[i]12345:[/i] [size=30]gems[/size]"
+		self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]"
 
 		self.display.draw_objects()
 

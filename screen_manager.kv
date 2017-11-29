@@ -55,12 +55,34 @@ ScreenManagement:
     name: "practice"
 
     FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (50,780)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
         MainWidgetPractice
 
 <PerformScreen>:
     name: "perform"
 
     FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (50,780)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+                
         MainWidget
         
 <SettingsScreen>:
