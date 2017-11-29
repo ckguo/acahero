@@ -2,14 +2,14 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from project import *
-
+from practice import *
 
 class MenuScreen(Screen):
     pass
 
 class PracticeScreen(Screen):
     pass
-    
+
 class PerformScreen(Screen):
     pass
 
