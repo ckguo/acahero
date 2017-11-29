@@ -36,8 +36,8 @@ SCREEN_TIME = 3.0 # Amount of time
 RATE = Window.width/SCREEN_TIME
 
 class MainWidgetPractice(BaseWidget) :
-	def __init__(self):
-		super(MainWidgetPractice, self).__init__()
+	def __init__(self, **kwargs):
+		super(MainWidgetPractice, self).__init__(**kwargs)
 		# Set terminal color to white
 		Window.clearcolor = (.8, .8, .8, .8) 
 
@@ -481,5 +481,5 @@ class PhrasePlayer(object):
 
 		self.display.animate_action(action, self.cur_gem)
 
-
-run(MainWidgetPractice)
+if __name__ == '__main__': 
+	run(MainWidgetPractice)
