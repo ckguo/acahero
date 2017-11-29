@@ -7,6 +7,9 @@ from project import *
 class MenuScreen(Screen):
     pass
 
+class PracticeScreen(Screen):
+    pass
+    
 class PerformScreen(Screen):
     pass
 
@@ -15,7 +18,7 @@ class SettingsScreen(Screen):
 
 class ScreenManagement(ScreenManager):
     pass
-    
+
 # Create the screen manager
 presentation = Builder.load_file("screen_manager.kv")
 
