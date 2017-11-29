@@ -66,7 +66,15 @@ ScreenManagement:
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        MainWidgetPractice
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (550,780)
+            on_press: 
+                root.startWidget()
 
 <PerformScreen>:
     name: "perform"
@@ -82,8 +90,16 @@ ScreenManagement:
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
-                
-        MainWidget
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]'
+            markup: True
+            size_hint: (.25, .1)
+            pos: (550,780)
+            on_press: 
+                root.startWidget()
         
 <SettingsScreen>:
     name: "settings"
