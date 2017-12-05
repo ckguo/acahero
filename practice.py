@@ -28,6 +28,7 @@ from functools import partial
 from pitch_detector import *
 from display import *
 from song_data import SongData
+from settings import getAudioFiles, getDisplayFiles
 
 Config.set('graphics', 'fullscreen', 'auto')
 Config.write()
@@ -36,7 +37,7 @@ SCREEN_TIME = 3.0 # Amount of time
 RATE = Window.width/SCREEN_TIME
 
 class MainWidgetPractice(BaseWidget) :
-	def __init__(self, **kwargs):
+	def __init__(self, song, part, **kwargs):
 		super(MainWidgetPractice, self).__init__(**kwargs)
 		# Set terminal color to white
 		Window.clearcolor = (.8, .8, .8, .8) 
@@ -70,13 +71,17 @@ class MainWidgetPractice(BaseWidget) :
 		self.user = Triangle(points=[NOW_PIXEL-60, -30, NOW_PIXEL-60, 30, NOW_PIXEL, 0])
 		self.canvas.add(self.user)
 
-		# Add particle system, which is used in BeatMatchDisplay when user sings the correct pitch.
+		# # Add particle system, which is used in BeatMatchDisplay when user sings the correct pitch.
 		self.ps = ParticleSystem('particle/particle.pex')
 		self.add_widget(self.ps)
 
-		self.gems_txt = 'songs/wdik/Tenor.txt'
-		self.barlines_txt = 'songs/wdik/barlines.txt'
-		self.beats_txt = 'songs/wdik/beats.txt'
+		# Display screen when starting game. 
+		# self.name.text = "[color=000000][b]ACAHERO[/b]"
+		self.scorelabel.text = "[color=000000]Score: 0"
+		self.timelabel.text = "Time: %.2f" % self.gametime
+		# self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]"
+		
+		self.gems_txt, self.barlines_txt, self.beats_txt = getDisplayFiles(song, part)
 
 		song_data = SongData()
 		song_data.read_data(self.gems_txt, self.barlines_txt, self.beats_txt)
@@ -89,29 +94,17 @@ class MainWidgetPractice(BaseWidget) :
 		current_phrase = self.phrases[self.phrase_num]
 		self.end_time = current_phrase.end_time
 
-		self.bg_filename = "songs/wdik/wdik-All.wav"
-		self.part_filename = "songs/wdik/wdik-Tenor.wav"
-		self.audio = PhraseAudioController(self.bg_filename, self.part_filename, self.receive_audio, current_phrase.start_time, current_phrase.phrase_length)
-
 		self.healthbar = HealthBar()
 		self.display = BeatMatchDisplay(self.phrases[0], self.ps, RATE)
 		self.canvas.add(self.healthbar)
 		self.canvas.add(self.display)
 
+		self.bg_filename, self.part_filename = getAudioFiles(song, part)
+		self.audio = PhraseAudioController(self.bg_filename, self.part_filename, self.receive_audio, current_phrase.start_time, current_phrase.phrase_length)
+
 		self.player = PhrasePlayer(self.phrases[0], self.display, self.audio, PitchDetector())
 
-		# Display screen when starting game. 
-		# self.name.text = "[color=000000][b]ACAHERO[/b]"
-		self.scorelabel.text = "[color=000000]Score: 0"
-		self.timelabel.text = "Time: %.2f" % self.gametime
-		# self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]"
-
 		self.display.draw_objects()
-
-	# def on_key_down(self, keycode, modifiers):
-	# 	# play / pause toggle
-	# 	if keycode[1] == 'p':
-	# 		self.toggle()
 
 	def toggle(self):
 		self.gameon = not self.gameon

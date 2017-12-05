@@ -29,6 +29,7 @@ from functools import partial
 from pitch_detector import *
 from display import *
 from song_data import SongData
+from settings import getAudioFiles, getDisplayFiles
 
 Config.set('graphics', 'fullscreen', 'auto')
 Config.write()
@@ -37,8 +38,9 @@ SCREEN_TIME = 10.0 # Amount of time
 RATE = Window.width/SCREEN_TIME
 
 class MainWidget(BaseWidget) :
-    def __init__(self, **kwargs):
+    def __init__(self, song, part, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
+    
         # Set terminal color to white
         Window.clearcolor = (.8, .8, .8, .8) 
 
@@ -65,8 +67,6 @@ class MainWidget(BaseWidget) :
         self.old_cursor_y = 1
         self.filter_rate = 0.4
 
-        self.audio = AudioController("songs/wdik/wdik-All.wav", "songs/wdik/wdik-Tenor.wav", receive_audio_func=self.receive_audio)
-
         # Display user's cursor
         # self.cursorcol = Color(1,0,0)
         self.cursorcol = Color(.6,.6,.6)
@@ -79,8 +79,17 @@ class MainWidget(BaseWidget) :
         self.ps = ParticleSystem('particle/particle.pex')
         self.add_widget(self.ps)
 
+        self.scorelabel.text = "[color=000000]Score: 0"
+        self.timelabel.text = "Time: %.2f" % self.gametime
+        self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]"
+       
+        self.bg_filename, self.part_filename = getAudioFiles(song, part)
+        self.audio = AudioController(self.bg_filename, self.part_filename, receive_audio_func=self.receive_audio)
+
+        self.gems_txt, self.barlines_txt, self.beats_txt = getDisplayFiles(song, part)
+
         song_data = SongData()
-        song_data.read_data('songs/wdik/Tenor.txt', 'songs/wdik/barlines.txt', 'songs/wdik/beats.txt')
+        song_data.read_data(self.gems_txt, self.barlines_txt, self.beats_txt)
         self.lanes = song_data.lanes
         self.beatData = song_data.beat_data
         self.healthbar = HealthBar()
@@ -90,20 +99,7 @@ class MainWidget(BaseWidget) :
 
         self.player = Player(song_data, self.display, self.audio, PitchDetector())
 
-        # Display screen when starting game. 
-        
-        # self.name.text = "[color=000000][b]ACAHERO[/b]"
-        self.scorelabel.text = "[color=000000]Score: 0"
-        self.timelabel.text = "Time: %.2f" % self.gametime
-        self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]"
-        # self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f \n correct lane: %f' % (self.player.correct_pitch, self.player.cur_pitch, self.player.cor_lane)
-
         self.display.draw_objects()
-
-    def on_key_down(self, keycode, modifiers):
-        # play / pause toggle
-        if keycode[1] == 'p':
-            self.toggle()
 
     def toggle(self):
         self.gameon = not self.gameon

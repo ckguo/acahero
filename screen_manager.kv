@@ -4,13 +4,20 @@ ScreenManagement:
     ## transition: FadeTransition()
 
     MenuScreen:
-    PracticeScreen:
-    PerformScreen:
+    PracticeScreen_wdik_soprano:
+    PracticeScreen_wdik_alto:
+    PracticeScreen_wdik_tenor:
+    PracticeScreen_wdik_bass:
+    PerformScreen_wdik_soprano:
+    PerformScreen_wdik_alto:
+    PerformScreen_wdik_tenor:
+    PerformScreen_wdik_bass:
     SettingsScreen:
-    
+
+
 <MenuScreen>:
     name: "menu"
-
+        
     BoxLayout:
         orientation: 'vertical'
         spacing: 30
@@ -34,7 +41,7 @@ ScreenManagement:
             text: 'Practice Mode'
             on_press: 
                 root.manager.transition.direction = 'left'
-                root.manager.current = 'practice'
+                root.goPractice()
 
         Button:
             background_color: (.7,.7,.7,.5) if self.state == 'normal' else (1,0,0,.5)
@@ -42,7 +49,7 @@ ScreenManagement:
             text: 'Perform Mode'
             on_press: 
                 root.manager.transition.direction = 'left'
-                root.manager.current = 'perform'
+                root.goPerform()
         Button:
             background_color: (.5,.5,.5,.5) if self.state == 'normal' else (1,0,0,.5)
             font_size: '30sp'
@@ -51,8 +58,98 @@ ScreenManagement:
                 root.manager.transition.direction = 'up'
                 root.manager.current = 'settings'
 
-<PracticeScreen>:
-    name: "practice"
+<SettingsScreen>:
+    name: "settings"
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 30
+        padding: [700,50,50,150]
+        canvas.before:
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                source: "spotlight.png"
+
+        Label:
+            text: "[color=FFFFFF][b]ACAHERO[/b]"
+            font_size: '75sp'
+            halign: 'center'
+            valign: 'bottom'
+            markup: True
+
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 10
+            padding: [0,0,0,150]
+
+            ToggleButton: 
+                font_size: '30sp'
+                text: 'Soprano'
+                group: 'Part'
+                on_press:
+                    root.setPart('soprano')
+            ToggleButton: 
+                font_size: '30sp'
+                text: 'Alto'
+                group: 'Part'
+                on_press:
+                    root.setPart('alto')
+            ToggleButton: 
+                font_size: '30sp'
+                text: 'Tenor'
+                group: 'Part'
+                on_press:
+                    root.setPart('tenor')
+            ToggleButton:
+                font_size: '30sp'
+                text: 'Bass'
+                group: 'Part'
+                on_press:
+                    root.setPart('bass')
+            ToggleButton: 
+                font_size: '30sp'
+                text: 'Solo'
+                group: 'Part'
+                on_press:
+                    root.setPart('voice')
+
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: 10
+            padding: [0,0,0,100]
+
+            ToggleButton: 
+                font_size: '30sp'
+                text: 'What Do I Know - Ed Sheeran'
+                group: 'Song'
+                on_press:
+                    root.setSong('wdik')
+            ToggleButton: 
+                font_size: '30sp'
+                text: 'Jingle Bell Rock - Mean Girls'
+                group: 'Song'
+                on_press:
+                    root.setSong('jbr')
+                
+                
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 30
+        padding: [50,800,500,50]
+
+        Button:
+            background_color: (.9,.9,.9,.9) if self.state == 'normal' else (1,0,0,.5)
+            text: '< Back'
+            font_size: '20sp'
+            size_hint: (.3,1)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+
+<PracticeScreen_wdik_soprano>:
+    name: "practice_wdik_soprano"
 
     FloatLayout:
         Button:
@@ -76,8 +173,8 @@ ScreenManagement:
             on_press: 
                 root.startWidget()
 
-<PerformScreen>:
-    name: "perform"
+<PracticeScreen_wdik_alto>:
+    name: "practice_wdik_alto"
 
     FloatLayout:
         Button:
@@ -94,20 +191,160 @@ ScreenManagement:
         Button:
             background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
             font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (550,780)
+            on_press: 
+                root.startWidget()
+
+<PracticeScreen_wdik_tenor>:
+    name: "practice_wdik_tenor"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (50,780)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (550,780)
+            on_press: 
+                root.startWidget()
+
+<PracticeScreen_wdik_bass>:
+    name: "practice_wdik_bass"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (50,780)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (550,780)
+            on_press: 
+                root.startWidget()
+
+<PerformScreen_wdik_soprano>:
+    name: "perform_wdik_soprano"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (50,780)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (550,780)
+            on_press: 
+                root.startWidget()
+
+<PerformScreen_wdik_alto>:
+    name: "perform_wdik_alto"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (50,780)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (550,780)
+            on_press: 
+                root.startWidget()
+
+<PerformScreen_wdik_tenor>:
+    name: "perform_wdik_tenor"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (50,780)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (550,780)
+            on_press: 
+                root.startWidget()
+
+<PerformScreen_wdik_bass>:
+    name: "perform_wdik_bass"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (50,780)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
             markup: True
             size_hint: (.25, .1)
             pos: (550,780)
             on_press: 
                 root.startWidget()
         
-<SettingsScreen>:
-    name: "settings"
-
-    BoxLayout:
-        Button:
-            background_color: (.5,.5,.5,.5) if self.state == 'normal' else (1,0,0,.5)
-            text: 'Back to menu'
-            on_press: 
-                root.manager.transition.direction = 'right'
-                root.manager.current = 'menu'
