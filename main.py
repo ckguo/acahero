@@ -11,6 +11,7 @@ from practice import MainWidgetPractice
 currpart = 'tenor'
 currsong = 'wdik'
 
+
 class MenuScreen(Screen):
     def goPractice(self):
         new_screen = 'practice_{}_{}'.format(currsong, currpart)
