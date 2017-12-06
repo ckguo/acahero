@@ -122,6 +122,8 @@ class MainWidgetPractice(BaseWidget) :
 			self.streaklabel.text = 'Good job on completing Practice Mode!\nPlease try again until you pass every phrase.'
 
 	def get_cursor_y(self):
+		if self.player.cur_pitch == 0:
+			return None
 		bottom_pitch = self.lanes[-2] - 12
 		top_pitch = self.lanes[1] + 12
 		if self.player.cur_pitch < bottom_pitch:
@@ -217,12 +219,13 @@ class MainWidgetPractice(BaseWidget) :
 			self.cursorcol.b = 0
 
 		y = self.get_cursor_y()
+		if y == None:
+			return
 		# Update the user's cursor
 		if y < GAME_HEIGHT:
 			cursor_y = self.filter_rate*y + (1-self.filter_rate)*self.old_cursor_y
 			self.old_cursor_y = cursor_y
 			self.user.points = [NOW_PIXEL-60, cursor_y-30, NOW_PIXEL-60, cursor_y+30, NOW_PIXEL, cursor_y]
-			# self.user.points = [NOW_PIXEL-30, y-10, NOW_PIXEL-30, y+10, NOW_PIXEL+10, y]
 
 	def receive_audio(self, frames, num_channels) :
 		# handle 1 or 2 channel input.

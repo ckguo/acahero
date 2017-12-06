@@ -68,11 +68,9 @@ class MainWidget(BaseWidget) :
         self.filter_rate = 0.4
 
         # Display user's cursor
-        # self.cursorcol = Color(1,0,0)
         self.cursorcol = Color(.6,.6,.6)
         self.canvas.add(self.cursorcol)
         self.user = Triangle(points=[NOW_PIXEL-60, -30, NOW_PIXEL-60, 30, NOW_PIXEL, 0])
-        # self.user = Triangle(points=[NOW_PIXEL-30, -10, NOW_PIXEL-30, 10, NOW_PIXEL+10, 0])
         self.canvas.add(self.user)
 
         # Add particle system, which is used in BeatMatchDisplay when user sings the correct pitch.
@@ -84,7 +82,8 @@ class MainWidget(BaseWidget) :
         self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]"
        
         self.bg_filename, self.part_filename = getAudioFiles(song, part)
-        self.audio = AudioController(self.bg_filename, self.part_filename, receive_audio_func=self.receive_audio)
+        self.synth = Synth('data/FluidR3_GM.sf2')
+        self.audio = AudioController(self.bg_filename, self.part_filename, self.synth, receive_audio_func=self.receive_audio)
 
         self.gems_txt, self.barlines_txt, self.beats_txt = getDisplayFiles(song, part)
 
@@ -114,6 +113,8 @@ class MainWidget(BaseWidget) :
         self.streaklabel.text = 'Final Percentage: {}%'.format(round(self.player.get_score()*100.))
 
     def get_cursor_y(self):
+        if self.player.cur_pitch == 0:
+            return None
         bottom_pitch = self.lanes[-2] - 12
         top_pitch = self.lanes[1] + 12
         if self.player.cur_pitch < bottom_pitch:
@@ -159,37 +160,38 @@ class MainWidget(BaseWidget) :
             # 3,2,1 Start game countdown
             if -3 < self.gametime < -2:
                 self.streaklabel.text = '3'
+                self.synth.noteon(0, 69, 100)
             elif -2 < self.gametime < -1:
                 self.streaklabel.text = '2'
+                self.synth.noteoff(0, 69)
             elif -1 < self.gametime < 0:
                 self.streaklabel.text = '1'
+
+            # slop = 0.05
+            # noteon = False
+            # if -6-slop < self.gametime < -5.5+slop and
 
             # End game
             if self.gametime > self.beatData[-1]+2:
                 self.endgame()
         
         if self.player.cur_pitch == 0:
-            # self.cursorcol.r = 1
-            # self.cursorcol.g = 0
             self.cursorcol.r = 0.6
             self.cursorcol.g = 0.6
             self.cursorcol.b = 0.6
         else:
-            # self.cursorcol.r = 0
-            # self.cursorcol.g = 1
             self.cursorcol.r = 0
             self.cursorcol.g = 0
             self.cursorcol.b = 0
-            # lane = self.lanes.index(np.round(self.player.cur_pitch))
-            # y = lane_to_y_pos(lane, self.num_lanes)
-        # self.ps.emitter_y = y
+
         y = self.get_cursor_y()
+        if y == None:
+            return
         # Update the user's cursor
         if y < GAME_HEIGHT:
             cursor_y = self.filter_rate*y + (1-self.filter_rate)*self.old_cursor_y
             self.old_cursor_y = cursor_y
             self.user.points = [NOW_PIXEL-60, cursor_y-30, NOW_PIXEL-60, cursor_y+30, NOW_PIXEL, cursor_y]
-            # self.user.points = [NOW_PIXEL-30, y-10, NOW_PIXEL-30, y+10, NOW_PIXEL+10, y]
 
     def receive_audio(self, frames, num_channels) :
         # handle 1 or 2 channel input.
@@ -213,11 +215,13 @@ class MainWidget(BaseWidget) :
 # creates a song and loads it with solo and bg audio tracks
 # creates snippets for audio sound fx
 class AudioController(object):
-    def __init__(self, bg_path, solo_path, receive_audio_func):
+    def __init__(self, bg_path, solo_path, synth, receive_audio_func):
         super(AudioController, self).__init__()
         self.audio = Audio(2, input_func=receive_audio_func)
+        self.synth = synth
         self.mixer = Mixer()
         self.audio.set_generator(self.mixer)
+        self.mixer.add(self.synth)
 
         self.wave_gen_bg = WaveGenerator(WaveFile(bg_path))
         self.wave_gen_solo = WaveGenerator(WaveFile(solo_path))
