@@ -12,6 +12,9 @@ currpart = 'tenor'
 currsong = 'wdik'
 
 
+class FirstSettingsScreen(Screen):
+    pass
+
 class MenuScreen(Screen):
     def goPractice(self):
         new_screen = 'practice_{}_{}'.format(currsong, currpart)

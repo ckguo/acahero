@@ -4,6 +4,7 @@
 ScreenManagement:
     ## transition: FadeTransition()
 
+    FirstSettingsScreen:
     MenuScreen:
     PracticeScreen_wdik_soprano:
     PracticeScreen_wdik_alto:
@@ -153,6 +154,103 @@ ScreenManagement:
             size_hint: (.2,.05)
             on_press: 
                 root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+
+<FirstSettingsScreen>:
+    name: "firstsettings"
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 30
+        padding: [.4*Window.width,.05*Window.height,.05*Window.width,.15*Window.height]
+        canvas.before:
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                source: "spotlight.png"
+
+        Label:
+            text: "[color=FFFFFF][b]ACAHERO[/b]"
+            font_size: '75sp'
+            halign: 'center'
+            valign: 'bottom'
+            markup: True
+
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 10
+            padding: [0,0,0,.15*Window.height]
+
+            ToggleButton:
+                background_color: (.95,.95,.95,.5) 
+                font_size: '28sp'
+                text: 'Soprano'
+                group: 'Part'
+                on_press:
+                    root.setPart('soprano')
+            ToggleButton:
+                background_color: (.95,.95,.95,.5) 
+                font_size: '28sp'
+                text: 'Alto'
+                group: 'Part'
+                on_press:
+                    root.setPart('alto')
+            ToggleButton:
+                background_color: (.95,.95,.95,.5) 
+                font_size: '28sp'
+                text: 'Tenor'
+                group: 'Part'
+                on_press:
+                    root.setPart('tenor')
+            ToggleButton:
+                background_color: (.95,.95,.95,.5)
+                font_size: '28sp'
+                text: 'Bass'
+                group: 'Part'
+                on_press:
+                    root.setPart('bass')
+            ToggleButton:
+                background_color: (.95,.95,.95,.5) 
+                font_size: '28sp'
+                text: 'Solo'
+                group: 'Part'
+                on_press:
+                    root.setPart('voice')
+
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: 10
+            padding: [0,0,0,.1*Window.height]
+
+            ToggleButton:
+                background_color: (.95,.95,.95,.5) 
+                font_size: '30sp'
+                text: 'What Do I Know - Ed Sheeran'
+                group: 'Song'
+                on_press:
+                    root.setSong('wdik')
+            ToggleButton:
+                background_color: (.95,.95,.95,.5) 
+                font_size: '30sp'
+                text: 'Jingle Bell Rock - Mean Girls'
+                group: 'Song'
+                on_press:
+                    root.setSong('jbr')
+                
+                
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 30
+        padding: [.85*Window.width,.85*Window.height,.05*Window.width,.05*Window.height]
+
+        Button:
+            background_color: (.95,.95,.95,.5) if self.state == 'normal' else (1,0,0,.5)
+            text: 'Next >'
+            font_size: '25sp'
+            size_hint: (1,.05)
+            on_press: 
+                root.manager.transition.direction = 'left'
                 root.manager.current = 'menu'
 
 
