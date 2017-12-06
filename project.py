@@ -166,7 +166,7 @@ class MainWidget(BaseWidget) :
                 self.streaklabel.text = '1'
 
             # play the notes of each lane
-            slop = 0.01
+            slop = 0.1
             self.noteon = False
             if -6-slop < self.gametime < -2+slop:
                 if not self.noteon:
