@@ -160,16 +160,23 @@ class MainWidget(BaseWidget) :
             # 3,2,1 Start game countdown
             if -3 < self.gametime < -2:
                 self.streaklabel.text = '3'
-                self.synth.noteon(0, 69, 100)
             elif -2 < self.gametime < -1:
                 self.streaklabel.text = '2'
-                self.synth.noteoff(0, 69)
             elif -1 < self.gametime < 0:
                 self.streaklabel.text = '1'
 
-            # slop = 0.05
-            # noteon = False
-            # if -6-slop < self.gametime < -5.5+slop and
+            # play the notes of each lane
+            slop = 0.01
+            self.noteon = False
+            if -6-slop < self.gametime < -2+slop:
+                if not self.noteon:
+                    if -slop < self.gametime*2 - round(self.gametime*2) < slop and round(self.gametime*2) != -4:
+                        self.noteon = True
+                        self.synth.noteon(0, self.lanes[int(round(self.gametime*2))+12], 100)
+                else:
+                    if -slop < self.gametime*2 - round(self.gametime*2) < slop and round(self.gametime*2) != -12:
+                        self.noteon = False
+                        self.synth.noteoff(0, self.lanes[int(round(self.gametime))+11])
 
             # End game
             if self.gametime > self.beatData[-1]+2:
