@@ -8,12 +8,27 @@ from practice import MainWidgetPractice
 
 # songs = os.listdir('songs')
 # parts = ['Soprano', 'Alto', 'Tenor', 'Bass']
-currpart = 'tenor'
-currsong = 'wdik'
+currpart = None
+currsong = None
 
 
-class FirstSettingsScreen(Screen):
-    pass
+class SettingsScreen(Screen):
+    def __init__(self, **kwargs):
+        super(SettingsScreen, self).__init__(**kwargs)
+        pass
+
+    def setPart(self, new_part):
+        global currpart
+        currpart = new_part
+
+    def setSong(self, new_song):
+        global currsong
+        currsong = new_song
+
+class FirstSettingsScreen(SettingsScreen):
+    def __init__(self, **kwargs):
+        super(FirstSettingsScreen, self).__init__(**kwargs)
+        pass
 
 class MenuScreen(Screen):
     def goPractice(self):
@@ -79,19 +94,6 @@ class PerformScreen_wdik_tenor(PerformScreen):
 class PerformScreen_wdik_bass(PerformScreen):
     def __init__(self, **kwargs):
         super(PerformScreen_wdik_bass, self).__init__('wdik', 'Bass', **kwargs)
-
-class SettingsScreen(Screen):
-    def __init__(self, **kwargs):
-        super(SettingsScreen, self).__init__(**kwargs)
-        pass
-
-    def setPart(self, new_part):
-        global currpart
-        currpart = new_part
-
-    def setSong(self, new_song):
-        global currsong
-        currsong = new_song
 
 class ScreenManagement(ScreenManager):
     pass
