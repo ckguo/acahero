@@ -64,7 +64,7 @@ def parse_XML(fname, tempo):
             img.save('../lyrics/'+l+'.png')
 
     
-parse_XML('wdik.xml', 115)
+parse_XML('jbr.xml', 120)
 
 #output first line is midi notes, next lines are time, duration, lane, syllable 
 #output partName.txt, partName.midi, all.midi, barlines.txt

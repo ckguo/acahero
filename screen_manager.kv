@@ -6,10 +6,12 @@ ScreenManagement:
 
     FirstSettingsScreen:
     MenuScreen:
+    PracticeScreen_wdik_voice:
     PracticeScreen_wdik_soprano:
     PracticeScreen_wdik_alto:
     PracticeScreen_wdik_tenor:
     PracticeScreen_wdik_bass:
+    PerformScreen_wdik_voice:
     PerformScreen_wdik_soprano:
     PerformScreen_wdik_alto:
     PerformScreen_wdik_tenor:
@@ -253,6 +255,31 @@ ScreenManagement:
                 root.manager.transition.direction = 'left'
                 root.manager.current = 'menu'
 
+<PracticeScreen_wdik_voice>:
+    name: "practice_wdik_voice"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (.03*Window.width,.85*Window.height)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (.38*Window.width,.85*Window.height)
+            on_press: 
+                root.startWidget()
+
 
 <PracticeScreen_wdik_soprano>:
     name: "practice_wdik_soprano"
@@ -331,6 +358,31 @@ ScreenManagement:
 
 <PracticeScreen_wdik_bass>:
     name: "practice_wdik_bass"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (.03*Window.width,.85*Window.height)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (.38*Window.width,.85*Window.height)
+            on_press: 
+                root.startWidget()
+
+<PerformScreen_wdik_voice>:
+    name: "perform_wdik_voice"
 
     FloatLayout:
         Button:

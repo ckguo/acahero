@@ -95,8 +95,10 @@ class MainWidgetPractice(BaseWidget) :
 		self.end_time = current_phrase.end_time
 
 		self.healthbar = HealthBar()
+		self.progress = ProgressBar(len(self.phrases))
 		self.display = BeatMatchDisplay(self.phrases[0], self.ps, RATE)
 		self.canvas.add(self.healthbar)
+		self.canvas.add(self.progress)
 		self.canvas.add(self.display)
 
 		self.bg_filename, self.part_filename = getAudioFiles(song, part)
@@ -149,6 +151,7 @@ class MainWidgetPractice(BaseWidget) :
 		return bottom_pos + frac*(top_pos-bottom_pos)
 
 	def goto_next_phrase(self):
+		self.progress.add_phrase_bar(self.player.get_score())
 		self.clock = Clock()
 		self.phrase_num += 1
 		if self.phrase_num == len(self.phrases):
@@ -392,9 +395,11 @@ class PhrasePlayer(object):
 
 		# if you are near the beginning of a phrase, return True if you had passed the phrase
 		# reset the score at the start of a phrase
-		if time_in_phrase < 0.05:
+		if time_in_phrase < 0.1:
 			if self.passed:
 				return True
+			if gametime > self.phrase_song_data.end_time:
+				return False
 			self.reset_score()
 			self.should_reset_score = False
 

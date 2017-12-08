@@ -51,6 +51,10 @@ class PracticeScreen(Screen):
             self.start = False
         self.widget.toggle()
 
+class PracticeScreen_wdik_voice(PracticeScreen):
+    def __init__(self, **kwargs):
+        super(PracticeScreen_wdik_voice, self).__init__('wdik', 'Voice', **kwargs)
+
 class PracticeScreen_wdik_soprano(PracticeScreen):
     def __init__(self, **kwargs):
         super(PracticeScreen_wdik_soprano, self).__init__('wdik', 'Soprano', **kwargs)
@@ -78,6 +82,10 @@ class PerformScreen(Screen):
             self.add_widget(self.widget)
             self.start = False
         self.widget.toggle()
+
+class PerformScreen_wdik_voice(PerformScreen):
+    def __init__(self, **kwargs):
+        super(PerformScreen_wdik_voice, self).__init__('wdik', 'Voice', **kwargs)
 
 class PerformScreen_wdik_soprano(PerformScreen):
     def __init__(self, **kwargs):

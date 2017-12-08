@@ -91,14 +91,22 @@ class MainWidget(BaseWidget) :
         song_data.read_data(self.gems_txt, self.barlines_txt, self.beats_txt)
         self.lanes = song_data.lanes
         self.beatData = song_data.beat_data
+        self.barlineData = song_data.barline_data
         self.healthbar = HealthBar()
+        self.progress = ProgressBar(len(song_data.barline_data)/4)
         self.display = BeatMatchDisplay(song_data, self.ps, RATE)
         self.canvas.add(self.healthbar)
+        self.canvas.add(self.progress)
         self.canvas.add(self.display)
 
         self.player = Player(song_data, self.display, self.audio, PitchDetector())
 
         self.display.draw_objects()
+
+        self.curr_phrase = 0
+        self.phrase_score = self.player.score
+        self.phrase_max_score = self.player.max_score
+
 
     def toggle(self):
         self.gameon = not self.gameon
@@ -151,6 +159,13 @@ class MainWidget(BaseWidget) :
 
             # Only display a streak if there is a current streak > 1
             self.streaklabel.text = '[color=CFB53B]{}X Streak'.format(self.player.get_streak()) if self.player.get_streak() > 1 else ''
+
+            if self.curr_phrase < len(self.barlineData)/4 and self.gametime > self.barlineData[4*(self.curr_phrase + 1)]:
+                new_score = (self.player.score-self.phrase_score)/(self.player.max_score - self.phrase_max_score)
+                self.progress.add_phrase_bar(new_score)
+                self.phrase_score = self.player.score
+                self.phrase_max_score = self.player.max_score
+                self.curr_phrase += 1
 
             self.audio.on_update(self.gametime)
             self.display.on_update(self.gametime)
