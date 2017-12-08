@@ -71,6 +71,27 @@ class PracticeScreen_wdik_bass(PracticeScreen):
     def __init__(self, **kwargs):
         super(PracticeScreen_wdik_bass, self).__init__('wdik', 'Bass', **kwargs)
 
+
+class PracticeScreen_jbr_voice(PracticeScreen):
+    def __init__(self, **kwargs):
+        super(PracticeScreen_jbr_voice, self).__init__('jbr', 'Voice', **kwargs)
+
+class PracticeScreen_jbr_soprano(PracticeScreen):
+    def __init__(self, **kwargs):
+        super(PracticeScreen_jbr_soprano, self).__init__('jbr', 'Soprano', **kwargs)
+
+class PracticeScreen_jbr_alto(PracticeScreen):
+    def __init__(self, **kwargs):
+        super(PracticeScreen_jbr_alto, self).__init__('jbr', 'Alto', **kwargs)
+
+class PracticeScreen_jbr_tenor(PracticeScreen):
+    def __init__(self, **kwargs):
+        super(PracticeScreen_jbr_tenor, self).__init__('jbr', 'Tenor', **kwargs)
+
+class PracticeScreen_jbr_bass(PracticeScreen):
+    def __init__(self, **kwargs):
+        super(PracticeScreen_jbr_bass, self).__init__('jbr', 'Bass', **kwargs)
+
 class PerformScreen(Screen):
     def __init__(self, song, part, **kwargs):
         super(PerformScreen, self).__init__(**kwargs)
@@ -102,6 +123,27 @@ class PerformScreen_wdik_tenor(PerformScreen):
 class PerformScreen_wdik_bass(PerformScreen):
     def __init__(self, **kwargs):
         super(PerformScreen_wdik_bass, self).__init__('wdik', 'Bass', **kwargs)
+
+
+class PerformScreen_jbr_voice(PerformScreen):
+    def __init__(self, **kwargs):
+        super(PerformScreen_jbr_voice, self).__init__('jbr', 'Voice', **kwargs)
+
+class PerformScreen_jbr_soprano(PerformScreen):
+    def __init__(self, **kwargs):
+        super(PerformScreen_jbr_soprano, self).__init__('jbr', 'Soprano', **kwargs)
+
+class PerformScreen_jbr_alto(PerformScreen):
+    def __init__(self, **kwargs):
+        super(PerformScreen_jbr_alto, self).__init__('jbr', 'Alto', **kwargs)
+
+class PerformScreen_jbr_tenor(PerformScreen):
+    def __init__(self, **kwargs):
+        super(PerformScreen_jbr_tenor, self).__init__('jbr', 'Tenor', **kwargs)
+
+class PerformScreen_jbr_bass(PerformScreen):
+    def __init__(self, **kwargs):
+        super(PerformScreen_jbr_bass, self).__init__('jbr', 'Bass', **kwargs)
 
 class ScreenManagement(ScreenManager):
     pass
