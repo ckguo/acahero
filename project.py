@@ -67,6 +67,9 @@ class MainWidget(BaseWidget) :
         self.old_cursor_y = 1
         self.filter_rate = 0.4
 
+        self.noteon_ind = 0
+        self.noteoff_ind = 0
+
         # Display user's cursor
         self.cursorcol = Color(.6,.6,.6)
         self.canvas.add(self.cursorcol)
@@ -181,17 +184,24 @@ class MainWidget(BaseWidget) :
                 self.streaklabel.text = '1'
 
             # play the notes of each lane
-            slop = 0.1
-            self.noteon = False
-            if -6-slop < self.gametime < -2+slop:
-                if not self.noteon:
-                    if -slop < self.gametime*2 - round(self.gametime*2) < slop and round(self.gametime*2) != -4:
-                        self.noteon = True
-                        self.synth.noteon(0, self.lanes[int(round(self.gametime*2))+12], 100)
-                else:
-                    if -slop < self.gametime*2 - round(self.gametime*2) < slop and round(self.gametime*2) != -12:
-                        self.noteon = False
-                        self.synth.noteoff(0, self.lanes[int(round(self.gametime))+11])
+            slop = 0.05
+
+            end_time = -2
+            start_time = end_time - len(self.lanes)/2.
+            if start_time-slop < self.gametime < end_time+slop:
+                if -slop < self.gametime*2 - round(self.gametime*2) < slop:
+                    ind = int(round(self.gametime*2)-2*start_time)
+                    print ('start', ind, self.noteon_ind)
+                    if ind == self.noteon_ind and self.noteon_ind < len(self.lanes):
+                        self.synth.noteon(0, self.lanes[ind], 100)
+                        self.noteon_ind += 1
+                        print self.noteon_ind
+                    ind = int(round(self.gametime*2)-2*start_time)-1
+                    print ('end', ind, self.noteoff_ind)
+                    if ind == self.noteoff_ind:
+                        self.synth.noteoff(0, self.lanes[ind])
+                        self.noteoff_ind += 1
+                        print self.noteoff_ind
 
             # End game
             if self.gametime > self.beatData[-1]+2:
