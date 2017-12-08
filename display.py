@@ -8,6 +8,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from common.kivyparticle import ParticleSystem
+from common.writer import *
 
 import numpy as np
 
