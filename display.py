@@ -140,25 +140,16 @@ class ProgressBar(InstructionGroup):
             left = Window.width*(PROG_X_L + PROG_W/self.num_phrases * i)
             self.phrase_lines.append(Line(points=[left, Window.height*PROG_Y, left, Window.height*PROG_Y], width=12, cap='none'))
 
-        #self.curr_phrase = 0
-
-#     def add_phrase_bar(self, score):
-#         print self.curr_phrase, score
-#         self.add(Color(1-score, score, 0, 0.8))
-#         self.remove(self.phrase_lines[self.curr_phrase])
-#         self.add(self.phrase_lines[self.curr_phrase])
-#         self.curr_phrase += 1
-
     def on_update(self, phrase, score):
         curr_phrase = int(phrase)
-        if phrase > 0:
+        if phrase > 0 and curr_phrase < self.num_phrases:
             c_left = Window.width*(PROG_X_L + PROG_W/self.num_phrases * phrase)
             c_right = c_left + Window.width*0.01
             self.cursor.points = [c_left, Window.height*PROG_Y, c_right, Window.height*PROG_Y]
             b_left = Window.width*(PROG_X_L + PROG_W/self.num_phrases * curr_phrase)
             b_right = Window.width*(PROG_X_L + PROG_W/self.num_phrases * phrase)
             self.phrase_lines[curr_phrase].points = [b_left, Window.height*PROG_Y, b_right, Window.height*PROG_Y]
-            self.add(Color(1-score, score, 0, 0.8))
+            self.add(Color(1-score, score, 0, 1.0))
             self.remove(self.phrase_lines[curr_phrase])
             self.add(self.phrase_lines[curr_phrase])
 
