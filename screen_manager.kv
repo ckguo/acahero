@@ -16,6 +16,16 @@ ScreenManagement:
     PerformScreen_wdik_alto:
     PerformScreen_wdik_tenor:
     PerformScreen_wdik_bass:
+    PracticeScreen_jbr_voice:
+    PracticeScreen_jbr_soprano:
+    PracticeScreen_jbr_alto:
+    PracticeScreen_jbr_tenor:
+    PracticeScreen_jbr_bass:
+    PerformScreen_jbr_voice:
+    PerformScreen_jbr_soprano:
+    PerformScreen_jbr_alto:
+    PerformScreen_jbr_tenor:
+    PerformScreen_jbr_bass:
     SettingsScreen:
 
 
@@ -483,6 +493,275 @@ ScreenManagement:
 
 <PerformScreen_wdik_bass>:
     name: "perform_wdik_bass"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (.03*Window.width,.85*Window.height)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (.38*Window.width,.85*Window.height)
+            on_press: 
+                root.startWidget()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<PracticeScreen_jbr_voice>:
+    name: "practice_jbr_voice"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (.03*Window.width,.85*Window.height)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (.38*Window.width,.85*Window.height)
+            on_press: 
+                root.startWidget()
+
+
+<PracticeScreen_jbr_soprano>:
+    name: "practice_jbr_soprano"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (.03*Window.width,.85*Window.height)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (.38*Window.width,.85*Window.height)
+            on_press: 
+                root.startWidget()
+
+<PracticeScreen_jbr_alto>:
+    name: "practice_jbr_alto"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (.03*Window.width,.85*Window.height)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (.38*Window.width,.85*Window.height)
+            on_press: 
+                root.startWidget()
+
+<PracticeScreen_jbr_tenor>:
+    name: "practice_jbr_tenor"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (.03*Window.width,.85*Window.height)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (.38*Window.width,.85*Window.height)
+            on_press: 
+                root.startWidget()
+
+<PracticeScreen_jbr_bass>:
+    name: "practice_jbr_bass"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (.03*Window.width,.85*Window.height)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (.38*Window.width,.85*Window.height)
+            on_press: 
+                root.startWidget()
+
+<PerformScreen_jbr_voice>:
+    name: "perform_jbr_voice"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (.03*Window.width,.85*Window.height)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (.38*Window.width,.85*Window.height)
+            on_press: 
+                root.startWidget()
+
+<PerformScreen_jbr_soprano>:
+    name: "perform_jbr_soprano"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (.03*Window.width,.85*Window.height)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (.38*Window.width,.85*Window.height)
+            on_press: 
+                root.startWidget()
+
+<PerformScreen_jbr_alto>:
+    name: "perform_jbr_alto"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (.03*Window.width,.85*Window.height)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (.38*Window.width,.85*Window.height)
+            on_press: 
+                root.startWidget()
+
+<PerformScreen_jbr_tenor>:
+    name: "perform_jbr_tenor"
+
+    FloatLayout:
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]< ACAHERO[/b]'
+            markup: True
+            size_hint: (.2, .1)
+            pos: (.03*Window.width,.85*Window.height)
+            on_press: 
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'menu'
+
+        Button:
+            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
+            font_size: '45sp'
+            text: '[color=000000][b]START | PAUSE[/b]' 
+            markup: True
+            size_hint: (.25, .1)
+            pos: (.38*Window.width,.85*Window.height)
+            on_press: 
+                root.startWidget()
+
+<PerformScreen_jbr_bass>:
+    name: "perform_jbr_bass"
 
     FloatLayout:
         Button:
