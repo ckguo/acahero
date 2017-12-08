@@ -138,23 +138,30 @@ class ProgressBar(InstructionGroup):
         self.add(Color(0,0,0,0))
         for i in range(self.num_phrases):
             left = Window.width*(PROG_X_L + PROG_W/self.num_phrases * i)
-            right = Window.width*(PROG_X_L + PROG_W/self.num_phrases * (i+1))
-            self.phrase_lines.append(Line(points=[left, Window.height*PROG_Y, right, Window.height*PROG_Y], width=12, cap='none'))
+            self.phrase_lines.append(Line(points=[left, Window.height*PROG_Y, left, Window.height*PROG_Y], width=12, cap='none'))
 
-        self.curr_phrase = 0
-        self.score = 1
+        #self.curr_phrase = 0
 
-    def add_phrase_bar(self, score):
-        print self.curr_phrase, score
-        self.add(Color(1-score, score, 0, 0.8))
-        self.remove(self.phrase_lines[self.curr_phrase])
-        self.add(self.phrase_lines[self.curr_phrase])
-        self.curr_phrase += 1
+#     def add_phrase_bar(self, score):
+#         print self.curr_phrase, score
+#         self.add(Color(1-score, score, 0, 0.8))
+#         self.remove(self.phrase_lines[self.curr_phrase])
+#         self.add(self.phrase_lines[self.curr_phrase])
+#         self.curr_phrase += 1
 
-        left = Window.width*(PROG_X_L + PROG_W/self.num_phrases * self.curr_phrase)
-        right = left + Window.width*0.01
-        self.cursor.points = [left, Window.height*PROG_Y, right, Window.height*PROG_Y]
- 
+    def on_update(self, phrase, score):
+        curr_phrase = int(phrase)
+        if phrase > 0:
+            c_left = Window.width*(PROG_X_L + PROG_W/self.num_phrases * phrase)
+            c_right = c_left + Window.width*0.01
+            self.cursor.points = [c_left, Window.height*PROG_Y, c_right, Window.height*PROG_Y]
+            b_left = Window.width*(PROG_X_L + PROG_W/self.num_phrases * curr_phrase)
+            b_right = Window.width*(PROG_X_L + PROG_W/self.num_phrases * phrase)
+            self.phrase_lines[curr_phrase].points = [b_left, Window.height*PROG_Y, b_right, Window.height*PROG_Y]
+            self.add(Color(1-score, score, 0, 0.8))
+            self.remove(self.phrase_lines[curr_phrase])
+            self.add(self.phrase_lines[curr_phrase])
+
 # Displays and controls all game elements: Nowbar, Buttons, BarLines, Gems.
 class BeatMatchDisplay(InstructionGroup):
     def __init__(self, song_data, ps, rate):

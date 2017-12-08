@@ -39,6 +39,7 @@ RATE = Window.width/SCREEN_TIME
 class MainWidgetPractice(BaseWidget) :
 	def __init__(self, song, part, **kwargs):
 		super(MainWidgetPractice, self).__init__(**kwargs)
+
 		# Set terminal color to white
 		Window.clearcolor = (.8, .8, .8, .8) 
 
@@ -85,6 +86,7 @@ class MainWidgetPractice(BaseWidget) :
 
 		song_data = SongData()
 		song_data.read_data(self.gems_txt, self.barlines_txt, self.beats_txt)
+		self.barlineData = song_data.barline_data
 		self.lanes = song_data.lanes
 
 		self.phrases = create_phrase_song_data(song_data)
@@ -151,7 +153,7 @@ class MainWidgetPractice(BaseWidget) :
 		return bottom_pos + frac*(top_pos-bottom_pos)
 
 	def goto_next_phrase(self):
-		self.progress.add_phrase_bar(self.player.get_score())
+		#self.progress.add_phrase_bar(self.player.get_score())
 		self.clock = Clock()
 		self.phrase_num += 1
 		if self.phrase_num == len(self.phrases):
@@ -198,6 +200,8 @@ class MainWidgetPractice(BaseWidget) :
 				else:
 					self.next_phrase_label.text = "Try again later!\nHere's the next phrase :)"
 
+			if self.gametime > 0:
+			    self.progress.on_update(self.phrase_num + self.gametime/(4*(self.barlineData[1]-self.barlineData[0])) % 1, self.player.get_score())
 			self.healthbar.on_update(self.player.get_score())
 
 			# 3,2,1 Start game countdown

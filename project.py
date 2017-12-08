@@ -17,7 +17,6 @@ from kivy.graphics import PushMatrix, PopMatrix, Translate, Scale, Rotate
 from kivy.clock import Clock as kivyClock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
-# from kivy.uix.button import Button
 # from common.kivyparticle import ParticleSystem
 from kivy.config import Config
 
@@ -107,7 +106,6 @@ class MainWidget(BaseWidget) :
         self.phrase_score = self.player.score
         self.phrase_max_score = self.player.max_score
 
-
     def toggle(self):
         self.gameon = not self.gameon
         self.audio.toggle()
@@ -161,8 +159,6 @@ class MainWidget(BaseWidget) :
             self.streaklabel.text = '[color=CFB53B]{}X Streak'.format(self.player.get_streak()) if self.player.get_streak() > 1 else ''
 
             if self.curr_phrase < len(self.barlineData)/4 and self.gametime > self.barlineData[4*(self.curr_phrase + 1)]:
-                new_score = (self.player.score-self.phrase_score)/(self.player.max_score - self.phrase_max_score)
-                self.progress.add_phrase_bar(new_score)
                 self.phrase_score = self.player.score
                 self.phrase_max_score = self.player.max_score
                 self.curr_phrase += 1
@@ -170,6 +166,8 @@ class MainWidget(BaseWidget) :
             self.audio.on_update(self.gametime)
             self.display.on_update(self.gametime)
             self.player.on_update(self.gametime)
+            new_score = (self.player.score-self.phrase_score)/(self.player.max_score - self.phrase_max_score)
+            self.progress.on_update(self.gametime/(4*(self.barlineData[1]-self.barlineData[0])), new_score)
             self.healthbar.on_update(self.player.get_score())
 
             # 3,2,1 Start game countdown
