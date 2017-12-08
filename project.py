@@ -85,6 +85,7 @@ class MainWidget(BaseWidget) :
        
         self.bg_filename, self.part_filename = getAudioFiles(song, part)
         self.synth = Synth('data/FluidR3_GM.sf2')
+        self.writer = AudioWriter('/recordings/{}/{}'.format(song, part))
         self.audio = AudioController(self.bg_filename, self.part_filename, self.synth, receive_audio_func=self.receive_audio)
 
         self.gems_txt, self.barlines_txt, self.beats_txt = getDisplayFiles(song, part)
@@ -111,6 +112,7 @@ class MainWidget(BaseWidget) :
 
     def toggle(self):
         self.gameon = not self.gameon
+        self.writer.start() # Start recording
         self.audio.toggle()
         self.display.toggle()
         self.clock.toggle()
@@ -203,6 +205,7 @@ class MainWidget(BaseWidget) :
 
             # End game
             if self.gametime > self.beatData[-1]+2:
+                self.writer.stop() # Stop recording
                 self.endgame()
         
         if self.player.cur_pitch == 0:
@@ -232,6 +235,10 @@ class MainWidget(BaseWidget) :
         else:
             mono = frames
 
+        # Write frames into wav file
+        if self.gameon and self.gametime >= 0:
+            self.writer.add_audio(mono, 1)
+
         # Microphone volume level, take RMS, convert to dB.
         # display on meter and graph
         rms = np.sqrt(np.mean(mono ** 2))
@@ -240,6 +247,7 @@ class MainWidget(BaseWidget) :
 
         # pitch detection: get pitch and display on meter and graph
         self.player.receive_audio(mono)
+
 
 # creates the Audio control
 # creates a song and loads it with solo and bg audio tracks
