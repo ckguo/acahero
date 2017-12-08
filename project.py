@@ -85,7 +85,7 @@ class MainWidget(BaseWidget) :
        
         self.bg_filename, self.part_filename = getAudioFiles(song, part)
         self.synth = Synth('data/FluidR3_GM.sf2')
-        self.writer = AudioWriter('/recordings/{}/{}'.format(song, part))
+        self.writer = AudioWriter('recordings/{}/{}'.format(song, part))
         self.audio = AudioController(self.bg_filename, self.part_filename, self.synth, receive_audio_func=self.receive_audio)
 
         self.gems_txt, self.barlines_txt, self.beats_txt = getDisplayFiles(song, part)
