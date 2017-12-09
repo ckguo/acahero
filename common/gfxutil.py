@@ -29,9 +29,8 @@ def topleft_label() :
     return l
 
 def topright_label(pos) :
-    l = Label(text = "", halign='right', valign='top', font_size='25sp',
-              pos=pos,
-              text_size=(Window.width, Window.height), color=(0,0,0), markup=True)
+    l = Label(text = "", halign='right', valign='top', font_size='35sp',
+              pos=pos, color=(0,0,0), markup=True)
     return l
 
 def name_label() :
@@ -42,8 +41,8 @@ def name_label() :
 
 def center_label() :
     l = Label(text = "", halign='center', valign='center', font_size='45sp',
-              pos=(Window.width * 0.43, Window.height * 0.35),
-              text_size=(Window.width, Window.height), color=(0,0,0), markup=True)
+              pos=(Window.width * 0.45, Window.height * 0.35),
+              color=(0,0,0), markup=True)
     return l
 
 # Override Ellipse class to add centered functionality.

@@ -25,6 +25,10 @@ class SettingsScreen(Screen):
         global currsong
         currsong = new_song
 
+    def playSong(self, song):
+        print('playing ', song)
+
+
 class FirstSettingsScreen(SettingsScreen):
     def __init__(self, **kwargs):
         super(FirstSettingsScreen, self).__init__(**kwargs)
