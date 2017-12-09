@@ -29,7 +29,8 @@ class SettingsScreen(Screen):
         currsong = new_song
 
     def playSong(self, song):
-        self.playback.play_song(new_song)
+        print('playing ', song)
+        self.playback.play_song(song)
 
     def pauseSong(self):
         self.playback.pause()

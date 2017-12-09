@@ -43,10 +43,10 @@ class MainWidget(BaseWidget) :
         # Set terminal color to white
         Window.clearcolor = (.8, .8, .8, .8) 
 
-        self.timelabel = topright_label((Window.width * 0.4, Window.height * 0.35))
+        self.timelabel = topright_label((Window.width * 0.84, Window.height * 0.81))
         self.add_widget(self.timelabel)
 
-        self.scorelabel = topright_label((Window.width * 0.4, Window.height * 0.4))
+        self.scorelabel = topright_label((Window.width * 0.83, Window.height * 0.87))
         self.add_widget(self.scorelabel)
 
         self.streaklabel = center_label()
@@ -79,8 +79,8 @@ class MainWidget(BaseWidget) :
         self.ps = ParticleSystem('particle/particle.pex')
         self.add_widget(self.ps)
 
-        self.scorelabel.text = "[color=000000]Score: 0"
-        self.timelabel.text = "Time: %.2f" % self.gametime
+        self.scorelabel.text = "[b]color=000000]SCORE: 0[/b]"
+        self.timelabel.text = "[b]TIME: %.2f[/b]" % self.gametime
         self.streaklabel.text = "[color=000000][b]keys[/b]\n[i]p:[/i] [size=30]play | pause[/size]"
        
         self.bg_filename, self.part_filename = getAudioFiles(song, part)
@@ -156,8 +156,9 @@ class MainWidget(BaseWidget) :
             curr_gametime = self.clock.get_time() - SCREEN_TIME
             self.gametime = curr_gametime
 
-            self.timelabel.text = "Time: %.2f" % self.gametime
-            self.scorelabel.text = 'Score: {:4.2f}'.format(self.player.get_score())
+            self.timelabel.text = "[b]TIME: %.2f[/b]" % self.gametime
+            self.scorelabel.text = 'SCORE: {}%'.format(int(self.player.get_score()*100))
+
             # self.pitchlabel.text = 'correct pitch: %f \n current pitch: %f' % (self.player.correct_pitch, self.player.cur_pitch)
 
             # Only display a streak if there is a current streak > 1

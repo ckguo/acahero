@@ -106,22 +106,22 @@ class Barline(InstructionGroup):
 class HealthBar(InstructionGroup):
     def __init__(self):
         super(HealthBar, self).__init__()
-        self.redbar = Line(points=[Window.width*0.85, Window.height*0.93, Window.width*0.95, Window.height*0.93], width=12)
+        self.redbar = Line(points=[Window.width*0.78, Window.height*0.93, Window.width*0.95, Window.height*0.93], width=20)
         self.add(Color(.9,.3,.3,0.5))
         self.add(self.redbar)
-        self.greenbar = Line(points=[Window.width*0.85, Window.height*0.93, Window.width*(0.95), Window.height*0.93], width=12)
+        self.greenbar = Line(points=[Window.width*0.78, Window.height*0.93, Window.width*(0.95), Window.height*0.93], width=20)
         self.add(Color(.1,1.0,.4,0.5))
         self.add(self.greenbar)
 
     def add_healthbar(self, score):
-        self.greenbar.points = [Window.width*0.85, Window.height*0.93, Window.width*(0.85+0.1*score ), Window.height*0.93]
+        self.greenbar.points = [Window.width*0.78, Window.height*0.93, Window.width*(0.85+0.1*score ), Window.height*0.93]
 
     def on_update(self, score):
         self.add_healthbar(score)
 
-PROG_Y = 0.93
+PROG_Y = 0.86
 PROG_X_L = 0.3
-PROG_X_R = 0.8
+PROG_X_R = 0.7
 PROG_W = PROG_X_R-PROG_X_L
 
 class ProgressBar(InstructionGroup):

@@ -138,21 +138,47 @@ ScreenManagement:
             spacing: 10
             padding: [0,0,0,.1*Window.height]
 
-            ToggleButton:
-                background_color: (.95,.95,.95,.5) 
-                font_size: '30sp'
-                text: 'What Do I Know - Ed Sheeran'
-                group: 'Song'
-                on_press:
-                    root.setSong('wdik')
-            ToggleButton:
-                background_color: (.95,.95,.95,.5) 
-                font_size: '30sp'
-                text: 'Jingle Bell Rock - Mean Girls'
-                group: 'Song'
-                on_press:
-                    root.setSong('jbr')
-                
+            BoxLayout:
+                orientation: 'horizontal'
+                spacing: 10
+
+                ToggleButton:
+                    background_color: (.95,.95,.95,.5) 
+                    font_size: '30sp'
+                    size_hint: (.7, 1)
+                    text: 'What Do I Know - Ed Sheeran'
+                    group: 'Song'
+                    on_press:
+                        root.setSong('wdik')
+
+                ToggleButton:
+                    background_color: (.95,.95,.95,.5)
+                    font_size: '30sp'
+                    text: 'Play' if self.state == 'normal' else 'Playing'
+                    size_hint: (.3,1)
+                    on_press: 
+                        root.playSong('wdik')
+
+            BoxLayout:
+                orientation: 'horizontal'
+                spacing: 10
+            
+                ToggleButton:
+                    background_color: (.95,.95,.95,.5) 
+                    font_size: '30sp'
+                    size_hint: (.7, 1)
+                    text: 'Jingle Bell Rock - Mean Girls'
+                    group: 'Song'
+                    on_press:
+                        root.setSong('jbr')
+
+                ToggleButton:
+                    background_color: (.95,.95,.95,.5)
+                    font_size: '30sp'
+                    text: 'Play' if self.state == 'normal' else 'Playing'
+                    size_hint: (.3,1)
+                    on_press: 
+                        root.playSong('jbr')
                 
     BoxLayout:
         orientation: 'vertical'
@@ -275,18 +301,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -301,18 +327,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -326,18 +352,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -351,18 +377,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -376,18 +402,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -401,18 +427,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -426,18 +452,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -451,18 +477,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -476,18 +502,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -501,18 +527,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -544,18 +570,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -570,18 +596,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -595,18 +621,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -620,18 +646,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -645,18 +671,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -670,18 +696,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -695,18 +721,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -720,18 +746,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -745,18 +771,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
 
@@ -770,18 +796,18 @@ ScreenManagement:
             text: '[color=000000][b]< ACAHERO[/b]'
             markup: True
             size_hint: (.2, .1)
-            pos: (.03*Window.width,.85*Window.height)
+            pos: (.03*Window.width,.88*Window.height)
             on_press: 
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'menu'
 
-        Button:
-            background_color: (0,0,0,0) if self.state == 'normal' else (0,1,0,.5)
-            font_size: '45sp'
-            text: '[color=000000][b]START | PAUSE[/b]' 
+        ToggleButton:
+            background_color: (0,0,0,0)
+            font_size: '35sp'
+            text: '[color=000000][b]START[/b]' if self.state == 'normal' else '[color=000000][b]PAUSE[/b]'
             markup: True
-            size_hint: (.25, .1)
-            pos: (.38*Window.width,.85*Window.height)
+            size_hint: (.20, .08)
+            pos: (.03*Window.width,.82*Window.height)
             on_press: 
                 root.startWidget()
         
