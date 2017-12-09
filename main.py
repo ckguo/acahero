@@ -5,6 +5,7 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from project import MainWidget
 from practice import MainWidgetPractice
+from playback import Playback
 
 # songs = os.listdir('songs')
 # parts = ['Soprano', 'Alto', 'Tenor', 'Bass']
@@ -15,15 +16,24 @@ currsong = None
 class SettingsScreen(Screen):
     def __init__(self, **kwargs):
         super(SettingsScreen, self).__init__(**kwargs)
-        pass
+        self.playback = Playback()
+        self.add_widget(self.playback)
 
     def setPart(self, new_part):
         global currpart
         currpart = new_part
+        self.playback.pause()
 
     def setSong(self, new_song):
         global currsong
         currsong = new_song
+
+    def playSong(self, song):
+        self.playback.play_song(new_song)
+
+    def pauseSong(self):
+        self.playback.pause()
+
 
 class FirstSettingsScreen(SettingsScreen):
     def __init__(self, **kwargs):
