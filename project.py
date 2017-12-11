@@ -1,6 +1,8 @@
 #pset6.py
 
 import sys
+import os.path
+import pickle
 sys.path.append('..')
 from common.core import *
 from common.audio import *
@@ -35,6 +37,7 @@ Config.write()
 
 SCREEN_TIME = 10.0 # Amount of time 
 RATE = Window.width/SCREEN_TIME
+PARTS = ["Soprano", "Alto", "Tenor", "Bass"]
 
 class MainWidget(BaseWidget) :
     def __init__(self, song, part, **kwargs):
@@ -42,6 +45,9 @@ class MainWidget(BaseWidget) :
     
         # Set terminal color to white
         Window.clearcolor = (.8, .8, .8, .8) 
+
+        self.song = song
+        self.part = part
 
         self.timelabel = topright_label((Window.width * 0.84, Window.height * 0.81))
         self.add_widget(self.timelabel)
@@ -109,6 +115,13 @@ class MainWidget(BaseWidget) :
         self.curr_phrase = 0
         self.phrase_score = self.player.score
         self.phrase_max_score = self.player.max_score
+
+        if os.path.isfile('recordings/{}/scores'.format(song)):
+            self.score_list = pickle.load(open('recordings/{}/scores'.format(song), 'r'))
+        else:
+            self.score_list = {}
+            for part in PARTS:
+                self.score_list[part] = {"score": 0, "num": 0, "top": None}
 
     def toggle(self):
         self.gameon = not self.gameon
@@ -207,6 +220,11 @@ class MainWidget(BaseWidget) :
             # End game
             if self.gametime > self.beatData[-1]+2:
                 self.writer.stop() # Stop recording
+                self.score_list[self.part]["num"] += 1
+                if self.score_list[self.part]["score"] < self.player.get_score():
+                    self.score_list[self.part]["score"] = self.player.get_score()
+                    self.score_list[self.part]["top"] = self.score_list[self.part]["num"]    
+                pickle.dump(self.score_list, open('recordings/{}/scores'.format(self.song), 'w'))
                 self.endgame()
         
         if self.player.cur_pitch == 0:
