@@ -157,7 +157,7 @@ ScreenManagement:
                     text: 'Play' if self.state == 'normal' else 'Playing'
                     size_hint: (.3,1)
                     on_press: 
-                        root.playSong('wdik')
+                        root.toggleSong('wdik')
 
             BoxLayout:
                 orientation: 'horizontal'
@@ -178,7 +178,7 @@ ScreenManagement:
                     text: 'Play' if self.state == 'normal' else 'Playing'
                     size_hint: (.3,1)
                     on_press: 
-                        root.playSong('jbr')
+                        root.toggleSong('jbr')
                 
     BoxLayout:
         orientation: 'vertical'
@@ -288,8 +288,7 @@ ScreenManagement:
             font_size: '25sp'
             size_hint: (1,.05)
             on_press: 
-                root.manager.transition.direction = 'left'
-                root.manager.current = 'menu'
+                root.next()
 
 <PracticeScreen_wdik_voice>:
     name: "practice_wdik_voice"

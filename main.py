@@ -16,13 +16,11 @@ currsong = None
 class SettingsScreen(Screen):
     def __init__(self, **kwargs):
         super(SettingsScreen, self).__init__(**kwargs)
-        self.playback = Playback()
-        self.add_widget(self.playback)
+        self.songs = {}
 
     def setPart(self, new_part):
         global currpart
         currpart = new_part
-        self.playback.pause()
 
     def setSong(self, new_song):
         global currsong
@@ -32,14 +30,28 @@ class SettingsScreen(Screen):
         print('playing ', song)
         self.playback.play_song(song)
 
-    def pauseSong(self):
-        self.playback.pause()
+    # def pauseAll(self, song):
+    #     self.playback.pause()
+
+    def toggleSong(self, song):
+        if song in self.songs:
+            playback = self.songs[song]
+            playback.toggle()
+        else:
+            self.songs[song] = Playback(song)
+            self.add_widget(self.songs[song])
+
 
 
 class FirstSettingsScreen(SettingsScreen):
     def __init__(self, **kwargs):
         super(FirstSettingsScreen, self).__init__(**kwargs)
         pass
+
+    def next(self):
+        if currpart and currsong:
+            self.manager.transition.direction = 'left'
+            self.manager.current = 'menu'
 
 class MenuScreen(Screen):
     def goPractice(self):
