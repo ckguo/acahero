@@ -103,18 +103,23 @@ class Barline(InstructionGroup):
         self.add(color)
         self.add(self.barline)
 
+H_Y = 0.93
+H_X_L = 0.78
+H_X_R = 0.95
+H_W = H_X_R-H_X_L
+
 class HealthBar(InstructionGroup):
     def __init__(self):
         super(HealthBar, self).__init__()
-        self.redbar = Line(points=[Window.width*0.78, Window.height*0.93, Window.width*0.95, Window.height*0.93], width=20)
+        self.redbar = Line(points=[Window.width*H_X_L, Window.height*H_Y, Window.width*H_X_R, Window.height*H_Y], width=20, cap='none')
         self.add(Color(.9,.3,.3,0.5))
         self.add(self.redbar)
-        self.greenbar = Line(points=[Window.width*0.78, Window.height*0.93, Window.width*(0.95), Window.height*0.93], width=20)
+        self.greenbar = Line(points=[Window.width*H_X_L, Window.height*H_Y, Window.width*H_X_R, Window.height*H_Y], width=20, cap='none')
         self.add(Color(.1,1.0,.4,0.5))
         self.add(self.greenbar)
 
     def add_healthbar(self, score):
-        self.greenbar.points = [Window.width*0.78, Window.height*0.93, Window.width*(0.85+0.1*score ), Window.height*0.93]
+        self.greenbar.points = [Window.width*H_X_L, Window.height*H_Y, Window.width*(H_X_L+H_W*score), Window.height*H_Y]
 
     def on_update(self, score):
         self.add_healthbar(score)
